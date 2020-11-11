@@ -1,0 +1,52 @@
+<br />
+<div class="container">
+  <!-- <nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+      <a class="nav-item nav-link active" id="nav-my-games-tab" data-toggle="tab" href="#nav-my-games" role="tab" aria-controls="nav-my-games" aria-selected="true">My Games</a>
+      <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">My Profile</a>
+    </div>
+  </nav>
+  <div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="nav-my-games" role="tabpanel" aria-labelledby="nav-my-games-tab">
+      <br />
+      <p><button type="button" class="btn btn-dark" (click)="CreateGame()">Create New Game</button></p>    
+      <app-gamesgrid></app-gamesgrid>
+    </div>
+    <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">...</div>
+  </div> -->
+
+<br />
+<div class="accordion" id="accordionExample">
+    <div class="card">
+      <div class="card-header" id="headingOne">
+        <h2 class="mb-0">
+          <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            <h3> My Games</h3>
+          </button>
+        </h2>
+      </div>
+  
+      <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+        <div class="card-body">
+            <p><button type="button" class="btn btn-dark" (click)="CreateGame()">Create New Game</button></p>            
+            <app-gamesgrid></app-gamesgrid>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header" id="headingTwo">
+        <h2 class="mb-0">
+          <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            <h3>My Profile</h3>
+          </button>
+        </h2>
+      </div>
+      <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+        <div class="card-body">
+            <app-profile></app-profile>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</div>

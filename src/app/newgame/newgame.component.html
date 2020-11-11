@@ -1,0 +1,63 @@
+<br />
+<div class="container">
+    <div class="row">
+        <div class="col">
+          <div class="input-group">
+            <input class="form-control" placeholder="yyyy-mm-dd" name="dp" [(ngModel)]="model" ngbDatepicker #d="ngbDatepicker">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary calendar" (click)="d.toggle()" type="button"></button>
+            </div>
+          </div>
+        </div>
+        <div class="col">When would you like this game to start?</div>
+    </div>
+    <div class="row">
+      <div class="col">          
+          <label for="stack" class="sr-only">Starting Stack</label>
+          <input type="text" class="form-control" id="stack" #stack name="stack" placeholder="starting stack">
+      </div>
+      <div class="col">&nbsp;</div>
+  </div>    
+    <div class="row">
+        <div class="col">          
+            <label for="email" class="sr-only">Email</label>
+            <input type="email" class="form-control" id="email" #email name="email" required pattern="[^ @]*@[^ @]*" placeholder="email">
+        </div>
+        <div class="col">
+          <button type="submit" class="btn btn-dark mb-2" (click)="Add(email.value)">Add player</button> &nbsp;
+          <button type="submit" class="btn btn-dark mb-2" (click)="CreateGame(stack.value)">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" *ngIf="creatingGame" ></span>
+            {{createButtonText}}
+          </button>
+        </div>
+    </div>
+    <div class="row" [hidden]="isValid">
+      <div class="col">          
+        <div  class="alert alert-danger">
+          {{errorMessage}}
+      </div>  
+      </div>
+      <div class="col"></div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+          
+        </div>
+    </div>
+  
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr @addedPlayers *ngFor="let player of addedPlayers" >
+          <td>{{player}}</td>
+          <td><button type="button" class="btn btn-info" (click)="RemovePlayer(player)">Remove</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>

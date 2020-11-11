@@ -1,0 +1,19 @@
+<div class="container">
+    <form class="form-signin" >
+        <h1 class="h3 mb-3 font-weight-normal">Sign in to play!</h1>
+        <label for="inputEmail" class="sr-only">Email address</label>
+        <input type="email" id="email" class="form-control" #email name="email" placeholder="Email address" required pattern="[^ @]*@[^ @]*" >
+        <div [hidden]="emailValid" class="alert alert-danger">
+              email is required
+        </div>
+  
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" id="password" class="form-control" name="password"  #password placeholder="Password" required >
+        <div [hidden]="passwordValid" class="alert alert-danger">
+            password is required
+        </div>
+        <div class="small">don't have an account? Sign up <a href="signup">here</a></div>
+        <div class="small">Forgot your password? Click <a href="#" (click)="PromptForReset(email.value)">to reset</a></div>
+        <button type="button" class="btn btn-lg btn-primary btn-block" (click)="SignIn(email.value, password.value)">Sign in</button>
+      </form>
+    </div>

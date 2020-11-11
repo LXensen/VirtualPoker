@@ -1,0 +1,24 @@
+
+<table class="table bg-success table-sm table-borderless">
+    <thead>
+      <tr class="table-success">
+        <th scope="col" colspan="3" [@messageChanged]="hasChanged ? true : false" class="open-close-container">{{message}}&nbsp;</th>
+      </tr>      
+    </thead>
+    <tbody>
+      <tr>
+        <td align="center"><img class="card-img-top w-75" [src]="card1SRC" alt="Card1"> </td>
+        <td align="center"><img class="card-img-top w-75" [src]="card2SRC" alt="Card2"> </td>
+        <td align="center"><img class="card-img-top w-75" [src]="card3SRC" alt="Card3"> </td>
+      </tr>
+      <tr>
+        <td align="center"><img class="card-img-top w-75" [src]="card4SRC" alt="Card4" ></td>
+        <td align="center"><img class="card-img-top w-75"  [src]="card5SRC" alt="Card5"></td>
+        <td align="center">
+            <button type="button" class="btn btn-warning font-weight-bold btn-block border border-dark text-dark" >{{pot}}</button><br /><br />
+            <button type="button" class="btn btn-outline-dark font-weight-bold btn-block" >{{timeLeft}}</button>
+        </td>
+      </tr>
+
+    </tbody>
+  </table>

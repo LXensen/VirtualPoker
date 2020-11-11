@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "pokerv3-2aac9": {
+      "hosting": {
+        "PokerV4": [
+          "pokerv3-2aac9"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "pokerv3-2aac9"
+  }
+}
