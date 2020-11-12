@@ -54,7 +54,6 @@ export class TableComponent implements OnInit {
   ngOnInit(): void {
     this.authSvc.user$.subscribe(user => {
         this.thisPlayer = this.holdEmService.LoadPlayer(user.uid);
-        debugger;
     });
   }
 

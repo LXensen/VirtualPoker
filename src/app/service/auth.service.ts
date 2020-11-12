@@ -56,7 +56,6 @@ constructor(private afs: AngularFirestore,
   async upateUser(name: string){
       this.user$.subscribe(
         (usr) => {
-        debugger;
         const userData: User = {
           uid: usr.uid,
           email: usr.email,
