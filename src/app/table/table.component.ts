@@ -1,9 +1,11 @@
 import { Player } from './../shared/model/player';
 import { HoldemService } from './../service/holdem.service';
 import { Component, OnInit } from '@angular/core';
-import { first } from 'rxjs/operators';
+import { first, map, switchMap } from 'rxjs/operators';
 import { Hand } from '../shared/model/hand';
 import { Gametemplate } from '../shared/model/gametemplate';
+import { AuthService } from '../service/auth.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-table',
@@ -24,11 +26,14 @@ export class TableComponent implements OnInit {
 
   gamestate: Gametemplate;
   allPlayers = new Array<Player>();
+  thisPlayer: Observable<Player>;
 
   starttime: Date;
   endtime: Date;
 
-  constructor(private holdEmService: HoldemService) {
+  constructor(private holdEmService: HoldemService,
+              private authSvc: AuthService) {
+
     this.holdEmService.Players$.subscribe(player => {
       player.docs.forEach(p => {
           this.allPlayers.push(p.data());
@@ -47,6 +52,10 @@ export class TableComponent implements OnInit {
    }
 
   ngOnInit(): void {
+    this.authSvc.user$.subscribe(user => {
+        this.thisPlayer = this.holdEmService.LoadPlayer(user.uid);
+        debugger;
+    });
   }
 
 
