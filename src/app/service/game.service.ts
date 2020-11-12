@@ -241,28 +241,26 @@ export class GameService {
     });
   }
 
-
   AddNewlySignedUpUser(userRefId: string,
                        displayName: string,
                        email: string): Promise<void> {
           return this.afStore.collection(this.USERS).doc(userRefId).set({displayName, email, uid: userRefId});
   }
 
-  // PlayersGames(userRefId: string): AngularFirestoreDocument<User> {
-  //   return this.afStore.collection(this.USERS).doc<User>(userRefId);
-  // }
-
   GameInvitees(gameRefId: string): Observable<any> {
     return this.afStore.collection(this.INVITES).doc(gameRefId).get();
   }
 
-  SetPlayersCurrentGame(gameRefId: string, userId: string): Promise<any> {
-    // debugger;
-    // return this.authService.user$.pipe(
-    //   map((user) => {
-    //     debugger;
-        return this.afStore.collection(this.USERS).doc(userId).update({currentGame: gameRefId});
-    //   })
-    // );
+  SetPlayersCurrentGame(gameRefId: string, user: User): Promise<any> {
+    const batchUpdate = this.afStore.firestore.batch();
+
+    const usersBatch = this.afStore.firestore.collection(this.USERS).doc(user.uid);
+    batchUpdate.set(usersBatch, {currentGame: gameRefId}, {merge: true});
+
+    const gamePlayersBatch = this.afStore.firestore.collection(this.GAMEPLAYERS).doc(`${gameRefId}_${user.uid}`);
+    batchUpdate.set(gamePlayersBatch, {name: user.displayName}, {merge: true});
+
+    return batchUpdate.commit();
+    // return this.afStore.collection(this.USERS).doc(userId).update({currentGame: gameRefId});
   }
 }

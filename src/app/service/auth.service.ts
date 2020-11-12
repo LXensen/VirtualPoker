@@ -22,11 +22,11 @@ constructor(private afs: AngularFirestore,
                     if (user) {
                       this.loggedin = true;
                       // localstorage? The observable state has alreayd been done...?
-                      const userData: User = {
-                        uid: user.uid,
-                        email: user.email,
-                        displayName: user.displayName
-                      };
+                      // const userData: User = {
+                      //   uid: user.uid,
+                      //   email: user.email,
+                      //   displayName: user.displayName
+                      // };
                       // localStorage.setItem('user', JSON.stringify(userData));
                       // this.SetUserData(userData);
                       // localStorage.setItem('firebaseuser', JSON.stringify(user));
@@ -53,18 +53,14 @@ constructor(private afs: AngularFirestore,
     }
   }
 
-  async upateUser(name: string){
-      this.user$.subscribe(
-        (usr) => {
-        const userData: User = {
-          uid: usr.uid,
-          email: usr.email,
-          displayName: name,
-          currentGame: usr.currentGame,
-          pastGames: usr.pastGames
-        };
-        this.SetUserData(userData);
-      });
+  async upateUser(user: User){
+      const userData: User = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+      };
+
+      this.SetUserData(userData);
 
       return (await this.afAuth.currentUser).updateProfile({
         displayName: name

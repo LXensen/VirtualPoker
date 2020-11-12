@@ -1,8 +1,6 @@
 import { Player } from './../shared/model/player';
 import { HoldemService } from './../service/holdem.service';
 import { Component, OnInit } from '@angular/core';
-import { first, map, switchMap } from 'rxjs/operators';
-import { Hand } from '../shared/model/hand';
 import { Gametemplate } from '../shared/model/gametemplate';
 import { AuthService } from '../service/auth.service';
 import { Observable } from 'rxjs';
@@ -22,7 +20,6 @@ export class TableComponent implements OnInit {
   flopVisible = false;
   turnVisible = false;
   riverVisible = false;
-  finalCardsVisible = true;
 
   gamestate: Gametemplate;
   allPlayers = new Array<Player>();
@@ -86,20 +83,18 @@ export class TableComponent implements OnInit {
         this.turnDisabled = true;
         this.riverVisible = true;
         this.riverDisabled = true;
-        this.finalCardsVisible = true;
         break;
-        case '':
-          this.dealDisabled = false;
-          this.flopDisabled = false;
-          this.turnDisabled = false;
-          this.riverDisabled = false;
+      case '':
+        this.dealDisabled = false;
+        this.flopDisabled = false;
+        this.turnDisabled = false;
+        this.riverDisabled = false;
 
-          this.dealVisible = true;
-          this.flopVisible = false;
-          this.turnVisible = false;
-          this.riverVisible = false;
-          this.finalCardsVisible = true;
-          break;
+        this.dealVisible = true;
+        this.flopVisible = false;
+        this.turnVisible = false;
+        this.riverVisible = false;
+        break;
       default:
         break;
     }

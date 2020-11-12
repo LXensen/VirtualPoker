@@ -21,7 +21,9 @@ export class ProfileComponent implements OnInit {
   }
 
   SaveChanges(name: string) {
-    this.authservice.upateUser(name).then(() => {
+    this.user.displayName = name;
+    this.authservice.upateUser(this.user).then((x) => {
+
     });
   }
 }

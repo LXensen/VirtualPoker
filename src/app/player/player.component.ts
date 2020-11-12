@@ -53,65 +53,65 @@ export class PlayerComponent implements OnInit {
 
     if (plyr) {
       this.holdEmService.LoadPlayer(plyr.userRef).subscribe((val) => {
-      this.isDisabled = false;
-      this.isChecked = false;
+        this.isDisabled = false;
+        this.isChecked = false;
 
-      this.currentPlayer = val;
+        this.currentPlayer = val;
 
-      if ( this.currentPlayer.cardOne === '') {
-        this.card1SRC = this.cardPath + this.flippedCardSRC;
-      }
+        if ( this.currentPlayer.cardOne === '') {
+          this.card1SRC = this.cardPath + this.flippedCardSRC;
+        }
 
-      if ( this.currentPlayer.cardTwo === '') {
-        this.card2SRC = this.cardPath + this.flippedCardSRC;
-      }
+        if ( this.currentPlayer.cardTwo === '') {
+          this.card2SRC = this.cardPath + this.flippedCardSRC;
+        }
 
-      if ( this.currentPlayer.folded || (this.currentPlayer.canBet === false) ) {
-        this.card1SRC = this.cardPath + this.foldedCardSRC;
-        this.card2SRC = this.cardPath + this.foldedCardSRC;
-        this.isDisabled = true;
-      }
+        if ( this.currentPlayer.folded || (this.currentPlayer.canBet === false) ) {
+          this.card1SRC = this.cardPath + this.foldedCardSRC;
+          this.card2SRC = this.cardPath + this.foldedCardSRC;
+          this.isDisabled = true;
+        }
 
-      if ( this.currentPlayer.smAntee ) {
-       this.smallAnteClass = this.isSelectedCSSClass;
-       this.isSmallBlind = true;
-      } else {
-       this.smallAnteClass = this.secondaryUnChecked;
-       this.isSmallBlind = false;
-      }
+        if ( this.currentPlayer.smAntee ) {
+         this.smallAnteClass = this.isSelectedCSSClass;
+         this.isSmallBlind = true;
+        } else {
+         this.smallAnteClass = this.secondaryUnChecked;
+         this.isSmallBlind = false;
+        }
 
-      if ( this.currentPlayer.bgAntee ) {
-       this.bigAnteeClass = this.isSelectedCSSClass;
-       this.isBigBlind = true;
-      } else {
-       this.bigAnteeClass = this.secondaryUnChecked;
-       this.isBigBlind = false;
-      }
+        if ( this.currentPlayer.bgAntee ) {
+         this.bigAnteeClass = this.isSelectedCSSClass;
+         this.isBigBlind = true;
+        } else {
+         this.bigAnteeClass = this.secondaryUnChecked;
+         this.isBigBlind = false;
+        }
 
-      if ( this.currentPlayer.hasChecked ) {
-        this.checkedClass = this.isSelectedCSSClass;
-      } else {
-        this.checkedClass = this.secondaryUnChecked;
-      }
+        if ( this.currentPlayer.hasChecked ) {
+          this.checkedClass = this.isSelectedCSSClass;
+        } else {
+          this.checkedClass = this.secondaryUnChecked;
+        }
 
-      if (this.currentPlayer.showCards) {
-        this.card1SRC = this.cardPath + this.currentPlayer.cardOne + '.png';
-        this.card2SRC = this.cardPath + this.currentPlayer.cardTwo + '.png';
-      }
+        if (this.currentPlayer.showCards) {
+          this.card1SRC = this.cardPath + this.currentPlayer.cardOne + '.png';
+          this.card2SRC = this.cardPath + this.currentPlayer.cardTwo + '.png';
+        }
 
-      if ( this.currentPlayer.dealer ) {
-        this.deallingClass = this.isSelectedCSSClass;
-      } else {
-       this.deallingClass = 'btn btn-outline-secondary';
-      }
+        if ( this.currentPlayer.dealer ) {
+          this.deallingClass = this.isSelectedCSSClass;
+        } else {
+         this.deallingClass = 'btn btn-outline-secondary';
+        }
 
-      if ( this.currentPlayer.isWinner ) {
-        this.isWinnerClass = this.isSelectedCSSClass;
-        this.isWinner = true;
-       } else {
-        this.isWinnerClass = this.secondaryUnChecked;
-        this.isWinner = false;
-       }
+        if ( this.currentPlayer.isWinner ) {
+          this.isWinnerClass = this.isSelectedCSSClass;
+          this.isWinner = true;
+         } else {
+          this.isWinnerClass = this.secondaryUnChecked;
+          this.isWinner = false;
+         }
       });
     } else {
       this.card1SRC = this.cardPath + this.foldedCardSRC;
