@@ -22,13 +22,13 @@
         <div >
           <app-flop *ngIf="gamestate" [GameState]="gamestate"></app-flop>
         </div>
-      <div class="btn-group btn-group-sm" role="group" aria-label="Second group" *ngIf="gamestate?.started && !gamestate?.completed" > 
+      <div class="btn-group btn-group-sm" role="group" aria-label="Second group" *ngIf="gamestate?.started && !gamestate?.completed && (thisPlayer | async)?.dealer" > 
         <button type="button" class="btn btn-outline-secondary btn-sm" (click)="Deal()" [disabled]="dealDisabled" *ngIf="dealVisible">Deal</button>                   
         <button type="button" class="btn btn-outline-secondary btn-sm" (click)="DealFlop()" [disabled]="flopDisabled" *ngIf="flopVisible">Flop</button>
         <button type="button" class="btn btn-outline-secondary btn-sm" (click)="DealTurn()" [disabled]="turnDisabled" *ngIf="turnVisible">Turn</button>
         <button type="button" class="btn btn-outline-secondary btn-sm" (click)="DealRiver()" [disabled]="riverDisabled" *ngIf="riverVisible">River</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="ShowCards()" *ngIf="finalCardsVisible">Show Cards</button>
-        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="NewHand()" *ngIf="finalCardsVisible">New Hand</button> 
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="ShowCards()">Show Cards</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="NewHand()" >New Hand</button> 
       </div>  
       
     </div>

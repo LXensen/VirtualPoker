@@ -332,7 +332,7 @@ CheckPlayer() {
 
   FinishGame(firstPlaceRef: string, firstPlaceName: string, secondPlaceRef: string, secondPlaceName: string): Promise<void> {
     const batchEndGame = this.firestore.firestore.batch();
-    debugger;
+
     const gameEndUpdate = this.firestore.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID);
     batchEndGame.set(gameEndUpdate, {completed: true,
                                     winner: firstPlaceRef,

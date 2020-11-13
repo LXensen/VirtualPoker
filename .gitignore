@@ -101,8 +101,8 @@ testem.log
 Thumbs.db
 
 # Other
-environment.ts
-environment.prod.ts
+# environment.ts
+# environment.prod.ts
 firestore-debug.log
 src/firebase.environment.ts
 .env

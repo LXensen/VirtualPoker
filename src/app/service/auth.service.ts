@@ -2,7 +2,7 @@ import { Observable, of } from 'rxjs';
 import { Injectable, isDevMode } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { switchMap, take, tap, map, delay } from 'rxjs/operators';
+import { switchMap, take, tap, map } from 'rxjs/operators';
 import { User } from '../shared/model/user';
 
 @Injectable({
@@ -22,12 +22,13 @@ constructor(private afs: AngularFirestore,
                     if (user) {
                       this.loggedin = true;
                       // localstorage? The observable state has alreayd been done...?
-                      const userData: User = {
-                        uid: user.uid,
-                        email: user.email,
-                        displayName: user.displayName
-                      };
-                      localStorage.setItem('user', JSON.stringify(userData));
+                      // const userData: User = {
+                      //   uid: user.uid,
+                      //   email: user.email,
+                      //   displayName: user.displayName
+                      // };
+                      // localStorage.setItem('user', JSON.stringify(userData));
+                      // this.SetUserData(userData);
                       // localStorage.setItem('firebaseuser', JSON.stringify(user));
                       return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
                     } else {
@@ -52,6 +53,19 @@ constructor(private afs: AngularFirestore,
     }
   }
 
+  async upateUser(user: User){
+      const userData: User = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+      };
+
+      this.SetUserData(userData);
+
+      return (await this.afAuth.currentUser).updateProfile({
+        displayName: name
+      });
+  }
   async ConfirmPasswordReset(code: string, password: string): Promise<any>{
     return this.afAuth.confirmPasswordReset(code, password);
   }
