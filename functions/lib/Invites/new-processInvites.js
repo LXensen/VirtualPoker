@@ -56,8 +56,6 @@ exports.processInvites = functions.firestore.document('invites/{gameId}').onCrea
                     admin.firestore().collection('games').doc(gameID).collection('Players').doc(playerId)
                         .withConverter(playerConverter_1.playerConverter)
                         .set(player)
-                        .then((x) => {
-                    })
                         .catch((err) => {
                         console.error(err);
                     });
