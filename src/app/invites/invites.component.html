@@ -25,8 +25,9 @@
                 {{invite.state}}
             </td>       
             <td>
-              <button type="submit" class="btn btn-dark mb-2" (click)="Resend(invite.email)">resend</button>
-          </td>                  
+              <button type="submit" class="btn btn-dark mb-2" (click)="Resend(invite.email)">resend</button>&nbsp;
+              <button type="submit" class="btn btn-dark mb-2" (click)="Remove(invite.email)" *ngIf="invite.state !== 'removed'" >remove</button>
+            </td>                               
           </tr>
         </tbody>
       </table>
