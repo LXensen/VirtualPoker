@@ -232,6 +232,7 @@ CheckPlayer() {
                               .get().subscribe(players => {
                                   players.forEach((player) => {
                                     const playerref = this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION).doc(player.get('userRef'));
+                                    console.log(player.get('userRef') + ' can not bet');
                                     playerref.update({canBet: false, stack: 0});
                                   });
                               });
