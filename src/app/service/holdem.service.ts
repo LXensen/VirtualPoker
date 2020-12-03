@@ -19,26 +19,28 @@ export class HoldemService {
     this.authService.user$.subscribe(user => {
          this.GAMEREFID = user.currentGame;
          this.gameRef = firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame);
-         this.handRef = firestore.collection(this.GAMESCOLLECTION).doc(`${user.currentGame}_${this.HAND}`);
+         this.handRef = firestore.collection(this.GAMESCOLLECTION).doc(`${user.currentGame}_${this.HANDCOLLECTION}`);
     });
 
     this.Players$ = this.authService.user$.pipe(
         switchMap((user) => {
-          return this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', user.currentGame)).get();
+          // return this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', user.currentGame)).get();
+          return this.firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame).collection(this.PLAYERSCOLLECTION).get();
         }));
 
     this.Hand$ = this.authService.user$.pipe(
         switchMap((user) => {
-          return this.firestore.collection(this.GAMESCOLLECTION).doc<Hand>(`${user.currentGame}_${this.HAND}`).valueChanges();
+          return this.firestore.collection(this.GAMESCOLLECTION).doc<Hand>(`${user.currentGame}_${this.HANDCOLLECTION}`).valueChanges();
         }));
 }
   private currentDeck: Deck;
 
   private GAMEREFID = '';
   private GAMESCOLLECTION = 'games';
-  private INVITES = 'invites';
-  private GAMEPLAYERS = 'gamePlayers';
-  private HAND = 'Hand';
+  private INVITESCOLLECTION = 'invites';
+  private PLAYERSCOLLECTION = 'Players';
+  // private GAMEPLAYERS = 'gamePlayers';
+  private HANDCOLLECTION = 'Hand';
   private BLUECARD = 'blue_back';
   private GRAYCARD = 'gray_back';
 
@@ -68,7 +70,11 @@ GameState(): Observable<Gametemplate> {
 LoadPlayer(playerRef: string): Observable<Player> {
   return this.authService.user$.pipe(
     switchMap((user) => {
-      return this.firestore.collection(this.GAMEPLAYERS).doc<Player>(`${user.currentGame}_${playerRef}`).valueChanges();
+      // return this.firestore.collection(this.GAMEPLAYERS).doc<Player>(`${user.currentGame}_${playerRef}`).valueChanges();
+      return this.firestore.collection(this.GAMESCOLLECTION)
+      .doc(`${user.currentGame}`)
+      .collection(this.PLAYERSCOLLECTION)
+      .doc<Player>(`${playerRef}`).valueChanges();
     })
   );
 }
@@ -84,7 +90,12 @@ Deck(): Deck {
  SetDealer() {
   this.messageSource.next('dealerSet');
   this.authService.user$.subscribe(user => {
-      return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({dealer: true});
+      // return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({dealer: true});
+      return this.firestore.collection(this.GAMESCOLLECTION)
+            .doc(`${user.currentGame}`)
+            .collection(this.PLAYERSCOLLECTION)
+            .doc<Player>(`${user.uid}`)
+            .update({dealer: true});
   });
 
 }
@@ -92,13 +103,23 @@ Deck(): Deck {
 FoldPlayer() {
   // remove this player from the list of PlayingPlayers
   this.authService.user$.subscribe(user => {
-    return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({folded: true, cardOne: this.GRAYCARD, cardTwo: this.GRAYCARD});
+    // return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({folded: true, cardOne: this.GRAYCARD, cardTwo: this.GRAYCARD});
+    return this.firestore.collection(this.GAMESCOLLECTION)
+          .doc(`${user.currentGame}`)
+          .collection(this.PLAYERSCOLLECTION)
+          .doc<Player>(`${user.uid}`)
+          .update({folded: true, cardOne: this.GRAYCARD, cardTwo: this.GRAYCARD});
   });
 }
 
 CheckPlayer() {
   this.authService.user$.subscribe(user => {
-    return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({hasChecked: true});
+    // return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({hasChecked: true});
+    return this.firestore.collection(this.GAMESCOLLECTION)
+          .doc(`${user.currentGame}`)
+          .collection(this.PLAYERSCOLLECTION)
+          .doc<Player>(`${user.uid}`)
+          .update({hasChecked: true});
   });
 }
   // implements small, big and 'normal' bet
@@ -107,7 +128,11 @@ CheckPlayer() {
     const increaseBy = firebase.default.firestore.FieldValue.increment(Number(betAmount));
 
     this.authService.user$.subscribe(user => {
-      const playerref = this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`);
+      // const playerref = this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`);
+      const playerref = this.firestore.collection(this.GAMESCOLLECTION)
+                            .doc(`${user.currentGame}`)
+                            .collection(this.PLAYERSCOLLECTION)
+                            .doc(`${user.uid}`);
 
       if ( anteeType === 'small' ) {
         playerref.update({stack: amount, smAntee: true, totalBet: increaseBy});
@@ -155,19 +180,27 @@ CheckPlayer() {
               pot = pot / 2;
             }
             const increaseStacktBy = firebase.default.firestore.FieldValue.increment(Number(pot));
-
             winningPlayer.forEach(player => {
-              const playerref = this.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${player}`);
+              // const playerref = this.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${player}`);
+              const playerref = this.firestore.collection(this.GAMESCOLLECTION)
+                                  .doc(this.GAMEREFID)
+                                  .collection(this.PLAYERSCOLLECTION)
+                                  .doc(player);
               playerref.update({stack: increaseStacktBy});
             });
 
-            this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.GAMEREFID)
+            // this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.GAMEREFID)
+            this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION, ref => ref.where('gameRef', '==', this.GAMEREFID)
             .where('canBet', '==', true))
             .get()
             .subscribe((val) => {
               const batch = this.firestore.firestore.batch();
               val.forEach((doc) => {
-                const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${doc.data().userRef}`);
+                // const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${doc.data().userRef}`);
+                const batchRef = this.firestore.firestore.collection(this.GAMESCOLLECTION)
+                                  .doc(this.GAMEREFID)
+                                  .collection(this.PLAYERSCOLLECTION)
+                                  .doc(doc.data().userRef);
                 // reset each Player
                 batch.update(batchRef, {folded: false,
                   cardOne: '',
@@ -183,17 +216,26 @@ CheckPlayer() {
               batch.commit().then(() => {
                 // make sure players with no money ( stack = 0 ) are set to canbet = false
                 // find the players of this game ( starts with GameRefId - gamerefid_playerrefid)
-                this.firestore.collection(this.GAMEPLAYERS, ref => ref.where(firebase.default.firestore.FieldPath.documentId(), '>=', this.GAMEREFID)
-                .where(firebase.default.firestore.FieldPath.documentId(), '<', '_'))
-                  .get()
-                  .toPromise().then((players) => {
-                    players.forEach((player) => {
-                      if (player.get('canBet') === true && player.get('stack') < 1){
-                        const playerref = this.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${player.get('userRef')}`);
-                        playerref.update({canBet: false, stack: 0});
-                      }
-                    });
-                  });
+                // this.firestore.collection(this.GAMEPLAYERS, ref => ref.where(firebase.default.firestore.FieldPath.documentId(), '>=', this.GAMEREFID)
+                // .where(firebase.default.firestore.FieldPath.documentId(), '<', '_'))
+                //   .get()
+                //   .toPromise().then((players) => {
+                //     players.forEach((player) => {
+                //       if (player.get('canBet') === true && player.get('stack') < 1){
+                //         const playerref = this.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${player.get('userRef')}`);
+                //         playerref.update({canBet: false, stack: 0});
+                //       }
+                //     });
+                //   });
+                this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION, ref => ref.where('canBet', '==', true)
+                              .where('stack', '<', 1))
+                              .get().subscribe(players => {
+                                  players.forEach((player) => {
+                                    const playerref = this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION).doc(player.get('userRef'));
+                                    console.log(player.get('userRef') + ' can not bet');
+                                    playerref.update({canBet: false, stack: 0});
+                                  });
+                              });
                 // reset the hand
                 this.handRef.update({cardOne: this.BLUECARD,
                   cardTwo: this.BLUECARD,
@@ -219,14 +261,20 @@ CheckPlayer() {
     // shuffle the deck before dealing
     this.Deck().Shuffle();
     // should only get players that are still 'active'
-    this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.GAMEREFID)
-        .where('folded', '==', false)
+    // this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.GAMEREFID)
+    this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID)
+        .collection(this.PLAYERSCOLLECTION, ref => ref.where('folded', '==', false)
+        // .where('folded', '==', false)
         .where('canBet', '==', true))
         .get()
         .subscribe((playerRef) => {
           const batch = this.firestore.firestore.batch();
           playerRef.forEach((player) => {
-          const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${player.data().userRef}`);
+          // const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${player.data().userRef}`);
+          const batchRef = this.firestore.firestore.collection(this.GAMESCOLLECTION)
+                          .doc(this.GAMEREFID)
+                          .collection(this.PLAYERSCOLLECTION)
+                          .doc(player.data().userRef);
           const card = this.Deck().cards.pop();
           batch.update(batchRef, {cardOne: card.url});
         });
@@ -237,14 +285,21 @@ CheckPlayer() {
 
     // Now deal the second card, cardTwo. Doing this rathe than the for loop so that it approximates actual 'dealing', where
     // you deal one card at a time to each player
-    this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.GAMEREFID)
-        .where('folded', '==', false)
+    // this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.GAMEREFID)
+    this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID)
+        .collection(this.PLAYERSCOLLECTION, ref => ref.where('folded', '==', false)
+        // .where('folded', '==', false)
         .where('canBet', '==', true))
         .get()
         .subscribe((playerRef) => {
           const batch = this.firestore.firestore.batch();
           playerRef.forEach((player) => {
-          const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${player.data().userRef}`);
+          // const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${player.data().userRef}`);
+          const batchRef = this.firestore.firestore.collection(this.GAMESCOLLECTION)
+                                .doc(this.GAMEREFID)
+                                .collection(this.PLAYERSCOLLECTION)
+                                .doc(player.data().userRef);
+
           const card = this.Deck().cards.pop();
           batch.update(batchRef, {cardTwo: card.url});
         });
@@ -256,7 +311,11 @@ CheckPlayer() {
   }
 
   GetGamePlayer(gameRef: string, userRef: string) {
-    return this.firestore.collection(this.GAMEPLAYERS).doc(`${gameRef}_${userRef}`).get();
+    // return this.firestore.collection(this.GAMEPLAYERS).doc(`${gameRef}_${userRef}`).get();
+    return this.firestore.collection(this.GAMESCOLLECTION)
+            .doc(`${gameRef}`)
+            .collection(this.PLAYERSCOLLECTION)
+            .doc(`${userRef}`).get();
   }
 
   DealTurn() {
@@ -293,14 +352,21 @@ CheckPlayer() {
 
   ShowCards() {
     // Show all non-folded players
-    this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.GAMEREFID)
-    .where('folded', '==', false)
+    this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION, ref => ref.where('folded', '==', false)
     .where('canBet', '==', true))
     .get()
+    // this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.GAMEREFID)
+    // .where('folded', '==', false)
+    // .where('canBet', '==', true))
+    // .get()
     .subscribe((val) => {
       const batch = this.firestore.firestore.batch();
       val.forEach((doc) => {
-        const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${doc.data().userRef}`);
+        // const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${doc.data().userRef}`);
+        const batchRef = this.firestore.firestore.collection(this.GAMESCOLLECTION)
+                          .doc(this.GAMEREFID)
+                          .collection(this.PLAYERSCOLLECTION)
+                          .doc(doc.data().userRef);
         batch.update(batchRef, {showCards: true});
       });
       batch.commit().then(() => {
@@ -315,9 +381,17 @@ CheckPlayer() {
       winner: firebase.default.firestore.FieldValue.arrayUnion(playerRef)
     });
 
-    this.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${playerRef}`).update({
-      isWinner: true
-    });
+    this.firestore.collection(this.GAMESCOLLECTION)
+                                  .doc(`${this.GAMEREFID}`)
+                                  .collection(this.PLAYERSCOLLECTION)
+                                  .doc(`${playerRef}`)
+                                  .update({
+                                    isWinner: true
+                                  });
+
+    // this.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${playerRef}`).update({
+    //   isWinner: true
+    // });
   }
 
   RemoveWinner(playerRef: string) {
@@ -340,7 +414,7 @@ CheckPlayer() {
                                     winnerName: firstPlaceName,
                                     secondName: secondPlaceName}, {merge: true});
 
-    const gameDeleteInvites = this.firestore.firestore.collection(this.INVITES).doc(this.GAMEREFID);
+    const gameDeleteInvites = this.firestore.firestore.collection(this.INVITESCOLLECTION).doc(this.GAMEREFID);
     batchEndGame.delete(gameDeleteInvites);
 
     return batchEndGame.commit();
@@ -370,13 +444,20 @@ CheckPlayer() {
   private ResetPlayersBetTotal() {
     const batch = this.firestore.firestore.batch();
 
-    this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.GAMEREFID)
-    .where('folded', '==', false)
+    this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION, ref => ref.where('folded', '==', false)
     .where('canBet', '==', true))
     .get()
+    // this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.GAMEREFID)
+    // .where('folded', '==', false)
+    // .where('canBet', '==', true))
+    // .get()
     .subscribe((playerRef) => {
       playerRef.forEach((player) => {
-      const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${player.data().userRef}`);
+      // const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${player.data().userRef}`);
+      const batchRef = this.firestore.firestore.collection(this.GAMESCOLLECTION)
+                        .doc(this.GAMEREFID)
+                        .collection(this.PLAYERSCOLLECTION)
+                        .doc(player.data().userRef);
       batch.update(batchRef, {totalBet: 0, hasChecked: false});
     });
       batch.commit().then(() => {

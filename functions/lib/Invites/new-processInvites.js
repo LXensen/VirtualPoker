@@ -30,7 +30,6 @@ exports.processInvites = functions.firestore.document('invites/{gameId}').onCrea
         };
         invites.forEach(invite => {
             const email = invite.email;
-            console.log('trying to access admin.firestore()');
             admin.firestore().collection('users').where('email', '==', email).get().then((qSnap) => {
                 console.log('was able to access admin.firestore()');
                 if (qSnap.docs.length === 1) {
@@ -53,30 +52,10 @@ exports.processInvites = functions.firestore.document('invites/{gameId}').onCrea
                         .set({ pastGames: admin.firestore.FieldValue.arrayUnion(gameID) }, { merge: true })
                         .then()
                         .catch();
-                    admin.firestore().collection('gamePlayers').doc(`${gameID}_${playerId}`)
+                    // admin.firestore().collection('gamePlayers').doc(`${gameID}_${playerId}`)
+                    admin.firestore().collection('games').doc(gameID).collection('Players').doc(playerId)
                         .withConverter(playerConverter_1.playerConverter)
                         .set(player)
-                        .then((x) => {
-                        // playerIds.push(playerId);
-                        // **************
-                        // JUST INVITE THIS PERSON - THEY ARE ALREADY SIGNED UP
-                        // **************
-                        console.log(`this person exists: ${email}`);
-                        const msg = `Hello! A Poker Club member has invited you to play a game! Click <a href="http://stonebridgepokerclub.s3-website-us-east-1.amazonaws.com/signin">here</a> to sign in`;
-                        admin.firestore().collection('mail').add({
-                            to: email,
-                            message: {
-                                subject: 'Poker Club Invite',
-                                html: msg
-                            }
-                        })
-                            .then(() => {
-                            console.log('Queued email for delivery!');
-                        })
-                            .catch((err) => {
-                            console.log(`There was an error creating a mail entry. Error is ${err}`);
-                        });
-                    })
                         .catch((err) => {
                         console.error(err);
                     });

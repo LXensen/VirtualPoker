@@ -16,7 +16,7 @@ export class GameService {
   private GAMES = 'games';
   private INVITES = 'invites';
   private USERS = 'users';
-  private GAMEPLAYERS = 'gamePlayers';
+  // private GAMEPLAYERS = 'gamePlayers';
   private BLUE_BACK = 'blue_back';
 
   constructor(private afStore: AngularFirestore, private authService: AuthService) {
@@ -104,7 +104,8 @@ export class GameService {
           newPlayer.name = displayname;
           newPlayer.stack = stackSize;
           console.log(newPlayer);
-          this.afStore.collection(this.GAMEPLAYERS).doc(`${gameRef.id}_${userid}`).set(newPlayer);
+          this.afStore.collection(this.GAMES).doc(gameRef.id).collection('Players').doc(userid).set(newPlayer);
+          // this.afStore.collection(this.GAMEPLAYERS).doc(`${gameRef.id}_${userid}`).set(newPlayer);
           // initialize the doc that will hold the hand
           this.afStore.collection(this.GAMES).doc(`${gameRef.id}_Hand`).set(newHand);
         });
@@ -214,7 +215,8 @@ export class GameService {
         const invitesBatch = this.afStore.firestore.collection(this.INVITES).doc(gameRefId);
         batchUpdate.set(invitesBatch, {invites});
 
-        const gamesUserAddBatch = this.afStore.firestore.collection(this.GAMEPLAYERS).doc(`${gameRefId}_${userRefId}`);
+        // const gamesUserAddBatch = this.afStore.firestore.collection(this.GAMEPLAYERS).doc(`${gameRefId}_${userRefId}`);
+        const gamesUserAddBatch = this.afStore.firestore.collection(this.GAMES).doc(gameRefId).collection('Players').doc(userRefId);
         batchUpdate.set(gamesUserAddBatch, {
           bgAntee: false,
           smAntee: false,
@@ -251,16 +253,52 @@ export class GameService {
     return this.afStore.collection(this.INVITES).doc(gameRefId).get();
   }
 
+  // remove this game from the players(based on email) pastGames
+  // remove this player from the games/gamerefid/Players collection
+  RemovePlayer(gameRefId: string, email: string) {
+    this.afStore.collection(this.USERS, ref => ref.where('email', '==', email))
+        .get()
+        .subscribe(userDoc => {
+          this.afStore.collection(this.GAMES).doc(gameRefId).collection('Players')
+                  .doc(userDoc.docs[0].data().uid).delete().then(() => {
+                    this.afStore.firestore.collection(this.INVITES).doc(gameRefId).get()
+                    .then(details => {
+                      const items: Array<any> = [];
+                      details.data().invites.forEach(invite => {
+                        if (invite.email === email){
+                          items.push({email: invite.email, stack: invite.stack, state: 'removed'});
+                        } else {
+                          items.push({email: invite.email, stack: invite.stack, state: invite.state});
+                        }
+                      });
+                      this.afStore.firestore.collection(this.INVITES).doc(gameRefId).set({invites: items});
+                    });
+          });
+        });
+  }
+
   SetPlayersCurrentGame(gameRefId: string, user: User): Promise<any> {
     const batchUpdate = this.afStore.firestore.batch();
 
     const usersBatch = this.afStore.firestore.collection(this.USERS).doc(user.uid);
     batchUpdate.set(usersBatch, {currentGame: gameRefId}, {merge: true});
 
-    const gamePlayersBatch = this.afStore.firestore.collection(this.GAMEPLAYERS).doc(`${gameRefId}_${user.uid}`);
+    const gamePlayersBatch = this.afStore.firestore.collection(this.GAMES).doc(gameRefId).collection('Players').doc(user.uid);
     batchUpdate.set(gamePlayersBatch, {name: user.displayName}, {merge: true});
 
+    this.afStore.firestore.collection(this.INVITES).doc(gameRefId).get()
+          .then(details => {
+            const items: Array<any> = [];
+            details.data().invites.forEach(invite => {
+              if (invite.email === user.email){
+                items.push({email: invite.email, stack: invite.stack, state: 'joined'});
+              } else {
+                items.push({email: invite.email, stack: invite.stack, state: invite.state});
+              }
+            });
+            this.afStore.firestore.collection(this.INVITES).doc(gameRefId).set({invites: items});
+          });
     return batchUpdate.commit();
-    // return this.afStore.collection(this.USERS).doc(userId).update({currentGame: gameRefId});
+    return;
   }
 }

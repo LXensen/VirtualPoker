@@ -1,8 +1,6 @@
 import { HoldemService } from './../service/holdem.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { Gametemplate } from '../shared/model/gametemplate';
-import { Router } from '@angular/router';
-import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-game',
@@ -92,18 +90,62 @@ export class GameComponent implements OnInit {
     }, 1000);
   }
 
-  StartGame(small: any, big: any, duration: any) {
-    if (small === '' || big === '' || duration === '') {
-      alert('Values are required for small, big blind and duration');
-    } else {
-      if (!this.gamestate.started) {
-        if (confirm('Starting the game will start your 3 hour limit. Do you wish to start? **there\'s no time limit for now. just a place holder**')) {
-          this.holdEmService.StartGame(Number(small), Number(big), Number(duration));
+  StartGame(small: any, big: any, duration: number) {
+      let durationValid = false;
+      let smallValid = false;
+      let bigValid = false;
+
+      let durationValue = 0;
+      let smallValue = 0;
+      let bigValue = 0;
+
+      if (!isNaN(duration)){
+        console.log(Number.isInteger(Number(duration)));
+        if (Number.isInteger(Number(duration))) {
+          durationValue = Number(duration);
+          durationValid = true;
         }
-      } else {
-        this.glowingtext = 'form-control mr-sm-2';
-        this.holdEmService.RaiseBlinds(Number(small), Number(big), Number(duration));
       }
+
+      if (!durationValid) {
+        alert('Enter a number for duration, in minutes, of blind ( ie: 10 )');
+      }
+
+      if (!isNaN(small)){
+        console.log(Number.isInteger(Number(small)));
+        if (Number.isInteger(Number(small))) {
+          smallValue = Number(small);
+          smallValid = true;
+        }
+      }
+
+      if (!smallValid) {
+        alert('Enter a number for small blind ( ie: 25 )');
+      }
+
+      if (!isNaN(big)){
+        console.log(Number.isInteger(Number(big)));
+        if (Number.isInteger(Number(big))) {
+          bigValue = Number(big);
+          bigValid = true;
+        }
+      }
+
+      if (!bigValid) {
+        alert('Enter a number for big blind ( ie: 50 )');
+      }
+
+      if (smallValue === 0 || bigValue === 0 || durationValue === 0) {
+        alert('Values are required for small, big blind and duration');
+      } else {
+        if (!this.gamestate.started) {
+          if (confirm('Starting the game will start your 3 hour limit. Do you wish to start? **there\'s no time limit for now. just a place holder**')) {
+            this.holdEmService.StartGame(Number(small), Number(big), Number(duration));
+          }
+        } else {
+          this.glowingtext = 'form-control mr-sm-2';
+          this.holdEmService.RaiseBlinds(Number(small), Number(big), Number(duration));
+        }
     }
   }
 

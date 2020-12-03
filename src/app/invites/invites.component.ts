@@ -29,4 +29,15 @@ export class InvitesComponent implements OnInit {
   Resend(email: string) {
 
   }
+
+  Remove(email: string) {
+    if (confirm('Remove ' + email + ' from the game?')) {
+      this.gameService.RemovePlayer(this.gameRefId, email);
+      this.invites.forEach(invite => {
+        if (invite.email === email){
+          invite.state = 'removed';
+        }
+      });
+    }
+  }
 }
