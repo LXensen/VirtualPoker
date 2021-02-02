@@ -3,33 +3,39 @@ import { Router } from '@angular/router';
 import { AuthService } from './../service/auth.service';
 import { Gametemplate } from './../shared/model/gametemplate';
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
 import { User } from '../shared/model/user';
-
+import { merge, Observable } from 'rxjs';
 @Component({
   selector: 'app-gamesgrid',
   templateUrl: './gamesgrid.component.html',
   styleUrls: ['./gamesgrid.component.css']
 })
 export class GamesgridComponent implements OnInit {
-
-  games: Observable<Gametemplate[]>;
-  // userRefId: any;
+  games: Gametemplate[] = [];
   user: User;
+  newgames: Observable<any>;
 
   constructor(private authService: AuthService,
               private gameService: GameService,
               private router: Router) {
-                this.authService.user$.subscribe(usr => {
-                  this.user = usr;
-                  if (usr.pastGames && usr.pastGames.length > 0) {
-                    this.gameService.PlayersGames(usr.pastGames).subscribe((usersGames) => {
-                           this.games = usersGames;
-                  });
-                  }
-                });
+
    }
+
   ngOnInit(): void {
+    this.authService.user$.subscribe((usr: any) => {
+      // this.user = usr.data();       
+      this.user = usr; 
+      this.games = new Array();           
+
+      this.gameService.NEWPlayersGames(this.user.uid).subscribe(data => {
+        this.games = new Array();
+        merge(...data).subscribe((docs: any) => {
+          this.games.push(docs.data())
+        });
+      });      
+    });
+
+    this.gameService.MigrateUserData();
   }
 
   GoToGame(gameId: string) {

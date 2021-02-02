@@ -8,8 +8,6 @@ import { Injectable } from '@angular/core';
 import * as firebase from 'firebase';
 import { Gametemplate } from '../shared/model/gametemplate';
 import { Hand } from '../shared/model/hand';
-import { User } from '../shared/model/user';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -17,19 +15,36 @@ export class HoldemService {
   constructor(protected firestore: AngularFirestore,
               private authService: AuthService) {
     this.authService.user$.subscribe(user => {
+      //debugger;
          this.GAMEREFID = user.currentGame;
          this.gameRef = firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame);
          this.handRef = firestore.collection(this.GAMESCOLLECTION).doc(`${user.currentGame}_${this.HANDCOLLECTION}`);
     });
 
+    this.NEWPlayers$ = this.authService.user$.pipe(
+      switchMap((user) => {
+        //debugger;
+        this.GAMEREFID = user.currentGame;
+        return this.firestore.collection(this.GAMESCOLLECTION).doc(`${user.currentGame}_sortedPlayers`).get();
+      }),
+      switchMap((user) => {
+        let somearray = []
+        //debugger;
+        user.data().players.forEach(player => {
+          somearray.push(this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION).doc(player).get())
+        });
+        return somearray;
+      })
+      );
+
     this.Players$ = this.authService.user$.pipe(
         switchMap((user) => {
-          // return this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', user.currentGame)).get();
           return this.firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame).collection(this.PLAYERSCOLLECTION).get();
         }));
 
     this.Hand$ = this.authService.user$.pipe(
         switchMap((user) => {
+          //debugger;
           return this.firestore.collection(this.GAMESCOLLECTION).doc<Hand>(`${user.currentGame}_${this.HANDCOLLECTION}`).valueChanges();
         }));
 }
@@ -39,7 +54,6 @@ export class HoldemService {
   private GAMESCOLLECTION = 'games';
   private INVITESCOLLECTION = 'invites';
   private PLAYERSCOLLECTION = 'Players';
-  // private GAMEPLAYERS = 'gamePlayers';
   private HANDCOLLECTION = 'Hand';
   private BLUECARD = 'blue_back';
   private GRAYCARD = 'gray_back';
@@ -51,6 +65,7 @@ export class HoldemService {
   currentMessage = this.messageSource.asObservable();
 
   Players$: Observable<any>;
+  NEWPlayers$: Observable<any>;
   Hand$: Observable<Hand>;
 
 PushMessage(message: string) {
@@ -58,9 +73,14 @@ PushMessage(message: string) {
   this.handRef.update({message: message});
 }
 
+// GamePlayers(): Observable<any> {
+//   debugger;
+//   return this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION).get();
+// }
+
 GameState(): Observable<Gametemplate> {
   return this.authService.user$.pipe(
-    switchMap((user) => {
+    switchMap((user: any) => {
       // TODO - This is getting hit a lot. Everytime the user is called?
       return this.firestore.collection(this.GAMESCOLLECTION).doc<Gametemplate>(`${user.currentGame}`).valueChanges();
     })
@@ -69,7 +89,8 @@ GameState(): Observable<Gametemplate> {
 
 LoadPlayer(playerRef: string): Observable<Player> {
   return this.authService.user$.pipe(
-    switchMap((user) => {
+    switchMap((user: any) => {
+      //debugger;
       // return this.firestore.collection(this.GAMEPLAYERS).doc<Player>(`${user.currentGame}_${playerRef}`).valueChanges();
       return this.firestore.collection(this.GAMESCOLLECTION)
       .doc(`${user.currentGame}`)
@@ -214,25 +235,12 @@ CheckPlayer() {
                   dealer: false});
               });
               batch.commit().then(() => {
-                // make sure players with no money ( stack = 0 ) are set to canbet = false
-                // find the players of this game ( starts with GameRefId - gamerefid_playerrefid)
-                // this.firestore.collection(this.GAMEPLAYERS, ref => ref.where(firebase.default.firestore.FieldPath.documentId(), '>=', this.GAMEREFID)
-                // .where(firebase.default.firestore.FieldPath.documentId(), '<', '_'))
-                //   .get()
-                //   .toPromise().then((players) => {
-                //     players.forEach((player) => {
-                //       if (player.get('canBet') === true && player.get('stack') < 1){
-                //         const playerref = this.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${player.get('userRef')}`);
-                //         playerref.update({canBet: false, stack: 0});
-                //       }
-                //     });
-                //   });
                 this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION, ref => ref.where('canBet', '==', true)
                               .where('stack', '<', 1))
                               .get().subscribe(players => {
                                   players.forEach((player) => {
                                     const playerref = this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION).doc(player.get('userRef'));
-                                    console.log(player.get('userRef') + ' can not bet');
+
                                     playerref.update({canBet: false, stack: 0});
                                   });
                               });
@@ -322,7 +330,6 @@ CheckPlayer() {
     this.Deck().cards.pop();
 
     this.handRef.update({cardFour: this.Deck().cards.pop().url});
-
     // reset total bet
     this.ResetPlayersBetTotal();
     this.PushMessage('Dealing turn');
@@ -332,7 +339,6 @@ CheckPlayer() {
     this.Deck().cards.pop();
 
     this.handRef.update({cardFive: this.Deck().cards.pop().url});
-
     // reset total bet
     this.ResetPlayersBetTotal();
     this.PushMessage('Dealing river');
@@ -344,7 +350,6 @@ CheckPlayer() {
     this.handRef.update({cardOne: this.Deck().cards.pop().url,
       cardTwo: this.Deck().cards.pop().url,
       cardThree: this.Deck().cards.pop().url});
-
     // reset total bet
     this.ResetPlayersBetTotal();
     this.PushMessage('Dealing flop');
@@ -423,6 +428,7 @@ CheckPlayer() {
   StartGame(smallblind: number, bigblind: number, blindduration: number) {
     // TODO - This will be how we manage state
     this.authService.user$.subscribe(user => {
+      debugger;
       this.firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame)
         .update({started: true,
           small: smallblind,

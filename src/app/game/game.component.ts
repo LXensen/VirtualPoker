@@ -1,6 +1,7 @@
 import { HoldemService } from './../service/holdem.service';
 import { Component, Input, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { Gametemplate } from '../shared/model/gametemplate';
+import { Player } from '../shared/model/player';
 
 @Component({
   selector: 'app-game',
@@ -9,21 +10,28 @@ import { Gametemplate } from '../shared/model/gametemplate';
 })
 export class GameComponent implements OnInit {
   glowingtext = 'form-control mr-sm-2';
-  timerCountdown = '';
+  timerCountdown: string;
   starttime: Date;
   endtime: Date;
   gamestate: Gametemplate;
-  players: any;
+  players = new Array<Player>();
 
   constructor(private holdEmService: HoldemService) {
+    this.timerCountdown = '';
+    debugger;
    }
 
   ngOnInit(): void {
-    this.holdEmService.Players$.subscribe(players => {
-      this.players = players.docs;
+    this.holdEmService.NEWPlayers$.subscribe(players => {
+      players.subscribe(data => {
+        this.players.push(data.data())
+      })
     });
-
+    // this.holdEmService.Players$.subscribe(players => {
+    //   this.players = players.docs;
+    // });
     this.holdEmService.GameState().subscribe(state => {
+      debugger;
       this.gamestate = state;
       if (!state.completed) {
         // this.bigBlindAmount = state.big;
@@ -40,7 +48,7 @@ export class GameComponent implements OnInit {
                                 this.starttime.getSeconds());
 
         const currentTime = new Date().getTime();
-        // let delta = (currentTime - this.endtime.getTime()) / 1000;
+        let delta = (currentTime - this.endtime.getTime()) / 1000;
         // let timeDelta = delta - Number.parseInt(state.blindDuration, 10);
         const timeDelta = (currentTime - this.endtime.getTime()) / 1000 - Number.parseInt(state.blindDuration, 10);
         // console.log(currentTime + ' ' + this.endtime + ' ' + (delta / 1000) + ' ' + delta); //state.blindStartDate.toDate() + ' ' + this.endtime);
@@ -75,7 +83,7 @@ export class GameComponent implements OnInit {
     const newinterval = setInterval(() => {
       const min = Math.floor(timeDelta / 60) + 1;
       const sec = timeDelta % 60;
-      // console.log(min + ':' + Math.trunc(sec) + ' ' +  timeDelta);
+      // console.log(min + ':' + Math.trunc(sec) + ' ' +  Math.trunc(timeDelta) );
 
       const modifiedSecond = Math.abs(Math.trunc(sec)).toString().length === 1 ? `0${Math.abs(Math.trunc(sec))}` : Math.abs(Math.trunc(sec));
       this.timerCountdown = `${Math.abs(min)}:${modifiedSecond}`;
@@ -91,6 +99,7 @@ export class GameComponent implements OnInit {
   }
 
   StartGame(small: any, big: any, duration: number) {
+    debugger;
       let durationValid = false;
       let smallValid = false;
       let bigValid = false;
@@ -112,7 +121,6 @@ export class GameComponent implements OnInit {
       }
 
       if (!isNaN(small)){
-        console.log(Number.isInteger(Number(small)));
         if (Number.isInteger(Number(small))) {
           smallValue = Number(small);
           smallValid = true;
@@ -124,7 +132,6 @@ export class GameComponent implements OnInit {
       }
 
       if (!isNaN(big)){
-        console.log(Number.isInteger(Number(big)));
         if (Number.isInteger(Number(big))) {
           bigValue = Number(big);
           bigValid = true;
@@ -151,7 +158,7 @@ export class GameComponent implements OnInit {
 
   FinishGame(firstPlace: any, secondPlace: any) {
       this.holdEmService.FinishGame(firstPlace.value, firstPlace.selectedOptions[0].text, secondPlace.value, secondPlace.selectedOptions[0].text).then(
-
+        this.gamestate = null
       );
   }
 }

@@ -1,11 +1,11 @@
 import { Player } from './../shared/model/player';
 import { Hand } from '../shared/model/hand';
-import { map, switchMap, take } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { User } from './../shared/model/user';
 import { Gametemplate } from './../shared/model/gametemplate';
 import { Injectable } from '@angular/core';
-import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { Observable, of } from 'rxjs';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { Observable, forkJoin } from 'rxjs';
 import * as firebase from 'firebase';
 import { AuthService } from './auth.service';
 
@@ -16,7 +16,7 @@ export class GameService {
   private GAMES = 'games';
   private INVITES = 'invites';
   private USERS = 'users';
-  // private GAMEPLAYERS = 'gamePlayers';
+  private USERSGAMES = 'usersGames';
   private BLUE_BACK = 'blue_back';
 
   constructor(private afStore: AngularFirestore, private authService: AuthService) {
@@ -75,114 +75,91 @@ export class GameService {
 
     return this.authService.user$.pipe(
       take(1),
-      map(usr => {
-      if (!emails.includes(usr.email) ) {
-        emails.push(usr.email);
-      }
-
-      displayname = usr.displayName;
-      userid = usr.uid;
-      newGame.userRef = usr.uid;
+      map((usr: any) => {
+        // let user: User = usr.data();
+        let user: User = usr;
+        if (!emails.includes(user.email) ) {
+          emails.push(user.email);
+        }
+  
+        displayname = user.displayName;
+        userid = user.uid;
+        newGame.userRef = user.uid;
 
       return this.afStore.collection(this.GAMES).add(newGame)
-      .then(gameRef => {
-        this.afStore.collection(this.GAMES).doc(gameRef.id).update({gameRef: gameRef.id}).then();
-
-        const invites = new Array<any>();
-        emails.forEach(email => {
-          invites.push({email, state: 'invited', stack: stackSize});
-          // Find the user based on this email. Return the REFID, add a new game to their pastGames
+        .then(gameRef => {
+            this.afStore.collection(this.USERSGAMES).doc(userid).collection('games').doc(gameRef.id).set({id: gameRef.id}).then(() => {
+              this.afStore.collection(this.GAMES).doc(gameRef.id).update({gameRef: gameRef.id}).then();  
+              const invites = new Array<any>();
+              emails.forEach(email => {
+                 invites.push({email, state: 'invited', stack: stackSize});
+               });
+               return this.afStore.collection(this.INVITES).doc(gameRef.id).set({invites})
+                       .then(() => {
+                         newPlayer.userRef = userid;
+                         newPlayer.gameRef = gameRef.id;
+                         newPlayer.name = displayname;
+                         newPlayer.stack = stackSize;
+                         this.afStore.collection(this.GAMES).doc(gameRef.id).collection('Players').doc(userid).set(newPlayer);
+                         // initialize the doc that will hold the hand
+                         this.afStore.collection(this.GAMES).doc(`${gameRef.id}_Hand`).set(newHand);
+                     });
+            });
+            //this.afStore.collection(this.GAMES).doc(gameRef.id).update({gameRef: gameRef.id}).then();              
+               
+              //  const invites = new Array<any>();
+              //  emails.forEach(email => {
+              //     invites.push({email, state: 'invited', stack: stackSize});
+              //     // Find the user based on this email. Return the REFID, add a new game to their pastGames
+              //   });
+              //   return this.afStore.collection(this.INVITES).doc(gameRef.id).set({invites})
+              //           .then(() => {
+              //             console.log('in new game creation')
+              //             //this.afStore.collection(this.USERSGAMES).doc(userid).collection('games').doc(gameRef.id).set({id: gameRef.id}).then();
+              //             //  this.afStore.collection(this.USERSGAMES).doc(userid)
+              //             //    .set({pastGames: firebase.default.firestore.FieldValue.arrayUnion(gameRef.id)}, {merge: true});
+              //               // this.afStore.collection(this.USERGAMES).doc(this.userRef)
+              //               // .set({currentGame: gameRef.id, isCreator: true, hasStarted: false, pastGames: []}, {merge: true});
+              //             newPlayer.userRef = userid;
+              //             newPlayer.gameRef = gameRef.id;
+              //             newPlayer.name = displayname;
+              //             newPlayer.stack = stackSize;
+              //             this.afStore.collection(this.GAMES).doc(gameRef.id).collection('Players').doc(userid).set(newPlayer);
+              //             // initialize the doc that will hold the hand
+              //             this.afStore.collection(this.GAMES).doc(`${gameRef.id}_Hand`).set(newHand);
+              //         });
         });
-        return this.afStore.collection(this.INVITES).doc(gameRef.id).set({invites})
-        .then(() => {
-          this.afStore.collection(this.USERS).doc(userid)
-            .set({pastGames: firebase.default.firestore.FieldValue.arrayUnion(gameRef.id)}, {merge: true});
-            // this.afStore.collection(this.USERGAMES).doc(this.userRef)
-            // .set({currentGame: gameRef.id, isCreator: true, hasStarted: false, pastGames: []}, {merge: true});
-          newPlayer.userRef = userid;
-          newPlayer.gameRef = gameRef.id;
-          newPlayer.name = displayname;
-          newPlayer.stack = stackSize;
-          console.log(newPlayer);
-          this.afStore.collection(this.GAMES).doc(gameRef.id).collection('Players').doc(userid).set(newPlayer);
-          // this.afStore.collection(this.GAMEPLAYERS).doc(`${gameRef.id}_${userid}`).set(newPlayer);
-          // initialize the doc that will hold the hand
-          this.afStore.collection(this.GAMES).doc(`${gameRef.id}_Hand`).set(newHand);
-        });
-      });
     }));
-    // return this.authService.user$.subscribe(usr => {
-    //   if (!emails.includes(usr.email) ) {
-    //     emails.push(usr.email);
-    //   }
-
-    //   displayname = usr.displayName;
-    //   userid = usr.uid;
-    //   newGame.userRef = usr.uid;
-
-    //   this.afStore.collection(this.GAMES).add(newGame)
-    //   .then(gameRef => {
-    //     this.afStore.collection(this.GAMES).doc(gameRef.id).update({gameRef: gameRef.id}).then();
-
-    //     const invites = new Array<any>();
-    //     emails.forEach(email => {
-    //       invites.push({email, state: 'invited', stack: stackSize});
-    //       // Find the user based on this email. Return the REFID, add a new game to their pastGames
-    //     });
-    //     this.afStore.collection(this.INVITES).doc(gameRef.id).set({invites})
-    //     .then(() => {
-    //       this.afStore.collection(this.USERS).doc(userid)
-    //         .set({pastGames: firebase.firestore.FieldValue.arrayUnion(gameRef.id)}, {merge: true});
-    //         // this.afStore.collection(this.USERGAMES).doc(this.userRef)
-    //         // .set({currentGame: gameRef.id, isCreator: true, hasStarted: false, pastGames: []}, {merge: true});
-    //       newPlayer.userRef = userid;
-    //       newPlayer.gameRef = gameRef.id;
-    //       newPlayer.name = displayname;
-    //       newPlayer.stack = stackSize;
-    //       console.log(newPlayer);
-    //       this.afStore.collection(this.GAMEPLAYERS).doc(`${gameRef.id}_${userid}`).set(newPlayer);
-    //       // initialize the doc that will hold the hand
-    //       this.afStore.collection(this.GAMES).doc(`${gameRef.id}_Hand`).set(newHand);
-    //     });
-    //   });
-    // });
-
-    // if (!emails.includes(this.authService.FireUser.email) ) {
-    //      emails.push(this.authService.FireUser.email);
-    // }
-
-    // newGame.userRef = this.authService.FireUser.uid;
-
-    // return this.afStore.collection(this.GAMES).add(newGame)
-    //     .then(gameRef => {
-    //       this.afStore.collection(this.GAMES).doc(gameRef.id).update({gameRef: gameRef.id}).then();
-
-    //       const invites = new Array<any>();
-    //       emails.forEach(email => {
-    //         invites.push({email, state: 'invited', stack: stackSize});
-    //         // Find the user based on this email. Return the REFID, add a new game to their pastGames
-    //       });
-    //       this.afStore.collection(this.INVITES).doc(gameRef.id).set({invites})
-    //       .then(() => {
-    //         this.afStore.collection(this.USERS).doc(this.authService.FireUser.uid)
-    //           .set({pastGames: firebase.firestore.FieldValue.arrayUnion(gameRef.id)}, {merge: true});
-    //           // this.afStore.collection(this.USERGAMES).doc(this.userRef)
-    //           // .set({currentGame: gameRef.id, isCreator: true, hasStarted: false, pastGames: []}, {merge: true});
-    //         newPlayer.userRef = this.authService.FireUser.uid;
-    //         newPlayer.gameRef = gameRef.id;
-    //         newPlayer.name = this.authService.FireUser.displayName;
-    //         newPlayer.stack = stackSize;
-    //         console.log(newPlayer);
-    //         this.afStore.collection(this.GAMEPLAYERS).doc(`${gameRef.id}_${this.authService.FireUser.uid}`).set(newPlayer);
-    //         // initialize the doc that will hold the hand
-    //         this.afStore.collection(this.GAMES).doc(`${gameRef.id}_Hand`).set(newHand);
-    //       });
-    //     });
   }
 
-  PlayersGames(pastgames: Array<string>): Observable<any> {
-      return this.afStore.collection(this.GAMES, ref => ref.where('gameRef', 'in', pastgames).orderBy('gameStartDate', 'desc')).valueChanges();
-    }
+  GetGame(gameRef: string) : Observable<any> {
+    return this.afStore.collection(this.GAMES).doc<Gametemplate>(gameRef).get();
+  }
+
+  NEWPlayersGames(userId: string): Observable<any> {
+    let gamedocsRef = [];
+    return this.afStore.collection(this.USERSGAMES).doc(userId).collection('games').valueChanges().pipe(
+      map((pastGames: any) => {
+        gamedocsRef = new Array();
+        pastGames.forEach(element => {
+          gamedocsRef.push(this.afStore.collection(this.GAMES).doc(element.id).get())
+        });
+        return gamedocsRef;
+      }));
+  }
+
+  // PlayersGames(userId: string): Observable<any> {
+  //   let gamedocs: any[] = Array<any>();
+
+  //   return this.afStore.collection(this.USERSGAMES).doc(userId).valueChanges().pipe(
+  //     map((pastgames: any) => {
+  //       pastgames.pastGames.forEach(game => {
+  //         gamedocs.push(this.afStore.collection(this.GAMES).doc(game).get())          
+  //       });
+  //       return gamedocs;
+  //     })
+  //   );
+  //   }
 
    async AddNewlySignedUpPlayerToInvitedGame(gameRefId: string,
                                              userRefId: string,
@@ -205,13 +182,13 @@ export class GameService {
         }
         invites.push(element);
       });
-
+debugger;
       if (canjoin) {
         const batchUpdate = this.afStore.firestore.batch();
 
-        const usersBatch = this.afStore.firestore.collection(this.USERS).doc(userRefId);
-        batchUpdate.set(usersBatch, {pastGames: firebase.default.firestore.FieldValue.arrayUnion(gameRefId)}, {merge: true});
-
+        // this.afStore.firestore.collection(this.USERSGAMES).doc(userRefId).collection(this.GAMES).doc(gameRefId).set({});
+        //const usersBatch = this.afStore.firestore.collection(this.USERS).doc(userRefId);
+        //batchUpdate.set(usersBatch, {pastGames: firebase.default.firestore.FieldValue.arrayUnion(gameRefId)}, {merge: true});
         const invitesBatch = this.afStore.firestore.collection(this.INVITES).doc(gameRefId);
         batchUpdate.set(invitesBatch, {invites});
 
@@ -298,7 +275,16 @@ export class GameService {
             });
             this.afStore.firestore.collection(this.INVITES).doc(gameRefId).set({invites: items});
           });
+          debugger;
     return batchUpdate.commit();
-    return;
+  }
+
+  MigrateUserData(){
+    this.afStore.firestore.collection(this.USERS).get().then(doc => {
+      doc.docs.forEach(element => {
+
+      });
+      // this.afStore.firestore.collection(this.USERSGAMES).doc(doc)
+    })
   }
 }

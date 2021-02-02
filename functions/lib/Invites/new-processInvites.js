@@ -7,9 +7,8 @@ const admin = require("firebase-admin");
 exports.processInvites = functions.firestore.document('invites/{gameId}').onCreate(async (snap, context) => {
     // console.log(snap.data());
     try {
-        const invites = snap.data().invites;
-        // console.log(invites);
-        // const playerIds: string[] = new Array();
+        let invites = snap.data().invites;
+        const sortedUsers = [];
         const gameID = context.params.gameId;
         const player = {
             bgAntee: false,
@@ -28,10 +27,14 @@ exports.processInvites = functions.firestore.document('invites/{gameId}').onCrea
             userRef: '',
             name: ''
         };
+        //console.log('********UNSORTED********');
+        //console.log(invites);
+        invites = invites.sort(() => Math.random() - 0.5);
+        //console.log('-----------SORTED-----------');
+        //console.log(invites);
         invites.forEach(invite => {
             const email = invite.email;
             admin.firestore().collection('users').where('email', '==', email).get().then((qSnap) => {
-                console.log('was able to access admin.firestore()');
                 if (qSnap.docs.length === 1) {
                     // this email exists in the App
                     const playerId = qSnap.docs[0].data().uid;
@@ -48,11 +51,16 @@ exports.processInvites = functions.firestore.document('invites/{gameId}').onCrea
                     // ************************************************************************
                     // admin.firestore().collection('userGames').doc(playerId)
                     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                    admin.firestore().collection('users').doc(playerId)
-                        .set({ pastGames: admin.firestore.FieldValue.arrayUnion(gameID) }, { merge: true })
+                    admin.firestore().collection('usersGames').doc(playerId).collection('games').doc(gameID)
+                        .set({ id: gameID }, { merge: true })
                         .then()
                         .catch();
-                    // admin.firestore().collection('gamePlayers').doc(`${gameID}_${playerId}`)
+                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                    admin.firestore().collection('games').doc(gameID + '_sortedPlayers')
+                        .set({ players: admin.firestore.FieldValue.arrayUnion(playerId) }, { merge: true })
+                        .then()
+                        .catch();
+                    sortedUsers.push(playerId);
                     admin.firestore().collection('games').doc(gameID).collection('Players').doc(playerId)
                         .withConverter(playerConverter_1.playerConverter)
                         .set(player)
@@ -89,6 +97,16 @@ exports.processInvites = functions.firestore.document('invites/{gameId}').onCrea
                 console.error(err);
             });
         });
+        // console.log('this executed before processing');
+        // console.log(invites.length);
+        // sortedUsers.forEach(element => {
+        //     console.log(element)
+        // });
+        // // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        // admin.firestore().collection('games').doc(gameID + '_sortedPlayers')
+        // .set({players: sortedUsers})
+        // .then()
+        // .catch();
     }
     catch (error) {
         console.log(error);

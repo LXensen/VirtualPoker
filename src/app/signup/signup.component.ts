@@ -33,7 +33,8 @@ export class SignupComponent implements OnInit {
 
   SignUp(email: string, displayName: string, password: string, confirmPassword: string) {
     let isValid = true;
-
+    email.toLowerCase();
+    
     if ( password !== confirmPassword ) {
        isValid = false;
        this.passwordsSame = false;
