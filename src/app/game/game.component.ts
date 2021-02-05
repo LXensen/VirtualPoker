@@ -18,7 +18,6 @@ export class GameComponent implements OnInit {
 
   constructor(private holdEmService: HoldemService) {
     this.timerCountdown = '';
-    debugger;
    }
 
   ngOnInit(): void {
@@ -31,7 +30,6 @@ export class GameComponent implements OnInit {
     //   this.players = players.docs;
     // });
     this.holdEmService.GameState().subscribe(state => {
-      debugger;
       this.gamestate = state;
       if (!state.completed) {
         // this.bigBlindAmount = state.big;

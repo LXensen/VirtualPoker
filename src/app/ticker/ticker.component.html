@@ -1,0 +1,43 @@
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="marquee" *ngIf="polledData$ | async as schedule">
+                <span> 
+                    <div *ngFor="let game of schedule.dates[0].games" style="display: inline; padding-right: 15px;">
+                            {{game.teams.home.team.name}} {{game.teams.home.score}} 
+                    </div><br />
+                    <div *ngFor="let game of schedule.dates[0].games" style="display: inline; padding-right: 15px;">
+                            {{game.teams.away.team.name}} {{game.teams.away.score}} 
+                    </div>                                
+                    <!-- <div *ngFor="let game of gameDate.games">
+                        <div style="display: inline;  padding-right: 15px;">BOS 4 </div>
+                        <div style="display: inline;  padding-right: 15px;">NYR 4 </div>
+                        <div style="display: inline;  padding-right: 15px;">NJD 4 </div>
+                    </div> -->
+                    <!-- <div *ngFor="let game of gameDate.games">
+                        <div style="display: inline;">OTT 4</div>
+                        <div style="display: inline;">&nbsp;&nbsp;&nbsp;&nbsp;TOR 4</div>
+                        <br />
+                    </div> -->
+                    <!-- <ul>
+                        <li >TOR 1</li>
+                        <li>&nbsp;</li>
+                        <li >&nbsp;&nbsp;OTT 3</li>
+                        <br />
+                        <li>MTL 2</li>
+                        <li>&nbsp;</li>
+                        <li>&nbsp;BOS 2</li>
+                    </ul> -->
+                    <!-- <div style="display: inline;">OTT 4</div>
+                    <div style="display: inline;">&nbsp;&nbsp;&nbsp;&nbsp;TOR 4</div>
+                    <br />
+                    <div style="display: inline;">MTL 4</div>
+                    <div style="display: inline;">&nbsp;&nbsp;&nbsp;&nbsp;BOS 4</div>
+                    <br />
+                    <div style="display: inline;">MTL 4</div>
+                    <div style="display: inline;">&nbsp;&nbsp;&nbsp;&nbsp;BOS 4</div>                     -->
+                </span>  
+            </div>                                   
+        </div>
+    </div>
+</div>

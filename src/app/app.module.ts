@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { environment } from './../environments/environment';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -26,6 +27,7 @@ import { AccountComponent } from './account/account.component';
 import { FlopComponent } from './flop/flop.component';
 import { GamesgridComponent } from './gamesgrid/gamesgrid.component';
 import { FormsModule } from '@angular/forms';
+import { TickerComponent } from './ticker/ticker.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +46,8 @@ import { FormsModule } from '@angular/forms';
     InvitesComponent,
     AccountComponent,
     FlopComponent,
-    GamesgridComponent
+    GamesgridComponent,
+    TickerComponent
   ],
   imports: [
     BrowserModule,
@@ -54,6 +57,7 @@ import { FormsModule } from '@angular/forms';
     AngularFireAuthModule,
     AngularFireAuthModule,
     FormsModule,
+    HttpClientModule,
     NgbModule
   ],
   providers: [

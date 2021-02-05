@@ -182,7 +182,7 @@ export class GameService {
         }
         invites.push(element);
       });
-debugger;
+
       if (canjoin) {
         const batchUpdate = this.afStore.firestore.batch();
 
@@ -275,7 +275,7 @@ debugger;
             });
             this.afStore.firestore.collection(this.INVITES).doc(gameRefId).set({invites: items});
           });
-          debugger;
+
     return batchUpdate.commit();
   }
 
