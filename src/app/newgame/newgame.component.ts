@@ -35,7 +35,7 @@ export class NewgameComponent implements OnInit {
     }
 
     if (email) {
-      this.addedPlayers.push(email);
+      this.addedPlayers.push(email.toLowerCase());
       this.emailInput.nativeElement.value = '';
     } else {
       window.alert('An email address is required');
@@ -73,9 +73,9 @@ export class NewgameComponent implements OnInit {
       this.createButtonText = 'Creating game...';
       console.log('creating game');
       try {
-        if (isDevMode()){
-          firebase.default.functions().useEmulator('localhost', 5001);
-        }
+        // if (isDevMode()){
+        //   firebase.default.functions().useEmulator('localhost', 5001);
+        // }
         this.gameSvc.NewGame(this.addedPlayers, `${this.model.year}/${this.model.month}/${this.model.day}`, stack).subscribe(x => {
           this.router.navigate(['account']);
         });

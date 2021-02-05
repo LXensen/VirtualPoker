@@ -111,5 +111,6 @@ firebase-debug.log
 firestore-debug.log
 ui-debug.log
 .firebase/hosting.ZGlzdC9Qb2tlclY0.cache
+functions/lib/
 functions/.runtimeconfig.json
 functions/ui-debug.log

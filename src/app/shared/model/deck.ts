@@ -21,6 +21,7 @@ export class Deck {
           // And swap it with the current element.
           t = this.cards[m];
           this.cards[m] = this.cards[i];
+          
           this.cards[i] = t;
         }
         // return this.cards;

@@ -30,11 +30,18 @@ export class TableComponent implements OnInit {
 
   constructor(private holdEmService: HoldemService,
               private authSvc: AuthService) {
+   }
 
-    this.holdEmService.Players$.subscribe(player => {
-      player.docs.forEach(p => {
-          this.allPlayers.push(p.data());
-        });
+  ngOnInit(): void {
+    this.authSvc.user$.subscribe(user => {
+        this.thisPlayer = this.holdEmService.LoadPlayer(user.uid);
+    });
+
+    let tempPlayers = [];
+    this.holdEmService.NEWPlayers$.subscribe(player => {
+      player.subscribe(data => {
+      this.allPlayers.push(data.data());
+      });
     });
 
     this.holdEmService.GameState().subscribe(state => {
@@ -45,12 +52,6 @@ export class TableComponent implements OnInit {
       if (this.gamestate.started && !this.gamestate.completed ) {
         this.DetermineButtonState(state.message);
       }
-    });
-   }
-
-  ngOnInit(): void {
-    this.authSvc.user$.subscribe(user => {
-        this.thisPlayer = this.holdEmService.LoadPlayer(user.uid);
     });
   }
 

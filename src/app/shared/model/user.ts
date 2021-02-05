@@ -3,5 +3,5 @@ export interface User {
     displayName: string;
     email: string;
     currentGame?: string;
-    pastGames?: Array<string>;
+    // pastGames?: Array<string>;
 }

@@ -16,14 +16,14 @@
                       <div class="form-group">
                         <label for="recipient-name" class="col-form-label">1st place:</label>
                         <select class="form-control" id="firstPlace" #firstPlace>
-                            <option *ngFor="let player of players" value="{{player.get('userRef')}}">{{player.get('name')}}</option>
+                            <option *ngFor="let player of players" value="{{player.userRef}}">{{player.name}}</option>
                         </select>
                       </div>
                       <div class="form-group">
                         <label for="recipient-name" class="col-form-label">2nd place:</label>
                         <select class="form-control" id="secondPlace" #secondPlace>
                             <option></option>
-                            <option *ngFor="let player of players" value="{{player.get('userRef')}}">{{player.get('name')}}</option>
+                            <option *ngFor="let player of players" value="{{player.userRef}}">{{player.name}}</option>
                         </select>
                       </div>
                     </form>

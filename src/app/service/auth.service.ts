@@ -2,7 +2,7 @@ import { Observable, of } from 'rxjs';
 import { Injectable, isDevMode } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { switchMap, take, tap, map } from 'rxjs/operators';
+import { switchMap, take, tap, map, mergeAll } from 'rxjs/operators';
 import { User } from '../shared/model/user';
 
 @Injectable({
@@ -29,7 +29,7 @@ constructor(private afs: AngularFirestore,
                       // };
                       // localStorage.setItem('user', JSON.stringify(userData));
                       // this.SetUserData(userData);
-                      // localStorage.setItem('firebaseuser', JSON.stringify(user));
+                      // localStorage.setItem('firebaseuser', JSON.stringify(user));                   
                       return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
                     } else {
                       return of(null);
@@ -86,7 +86,6 @@ constructor(private afs: AngularFirestore,
             email: result.user.email,
             displayName: result.user.displayName,
             currentGame: '',
-            pastGames: []
           };
           this.SetUserData(userData);
           return result.user;
@@ -103,7 +102,6 @@ constructor(private afs: AngularFirestore,
 
   IsLoggedIn(): Observable<boolean> {
       return this.user$.pipe(
-        // delay(1000),
         take(1),
         map(user => !!user),
         tap(loggedin => {
@@ -113,14 +111,19 @@ constructor(private afs: AngularFirestore,
   }
 
   SetUserData(user) {
-    console.log('setting user data...');
-    const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${user.uid}`);
+    const batchUpdate = this.afs.firestore.batch();
+
+    const usersGames = this.afs.firestore.collection('usersGames').doc(user.uid);
+    batchUpdate.set(usersGames, {},{merge: true});
+
+    const userRef = this.afs.firestore.collection('users').doc(user.uid);
     const userData: User = {
       uid: user.uid,
       email: user.email,
       displayName: user.displayName
     };
-    // Set is destructive, so we use merge: true to *not* erase any *existing* data
-    return userRef.set(userData, {merge: true});
+    batchUpdate.set(userRef, userData);
+
+    return batchUpdate.commit();
   }
 }
