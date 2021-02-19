@@ -1,8 +1,8 @@
 import { Observable, of } from 'rxjs';
 import { Injectable, isDevMode } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { switchMap, take, tap, map, mergeAll } from 'rxjs/operators';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { switchMap, take, tap, map } from 'rxjs/operators';
 import { User } from '../shared/model/user';
 
 @Injectable({
@@ -29,7 +29,7 @@ constructor(private afs: AngularFirestore,
                       // };
                       // localStorage.setItem('user', JSON.stringify(userData));
                       // this.SetUserData(userData);
-                      // localStorage.setItem('firebaseuser', JSON.stringify(user));                   
+                      // localStorage.setItem('firebaseuser', JSON.stringify(user));
                       return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
                     } else {
                       return of(null);
@@ -63,7 +63,7 @@ constructor(private afs: AngularFirestore,
       this.SetUserData(userData);
 
       return (await this.afAuth.currentUser).updateProfile({
-        displayName: name
+        displayName: user.displayName
       });
   }
   async ConfirmPasswordReset(code: string, password: string): Promise<any>{
@@ -105,6 +105,7 @@ constructor(private afs: AngularFirestore,
         take(1),
         map(user => !!user),
         tap(loggedin => {
+          debugger;
           console.log('is logged in: ' + loggedin);
           return (loggedin ? true : false);
         }));

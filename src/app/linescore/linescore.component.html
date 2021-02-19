@@ -1,0 +1,64 @@
+     <div class="card-deck" *ngIf="linescoreData$ | async as linescore">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">{{linescore.teams.home.team.name}} &nbsp;{{linescore.teams.home.goals}} - {{linescore.teams.away.goals}}&nbsp; {{linescore.teams.away.team.name}} </h5>
+                <ng-container [ngTemplateOutlet]="linescore.currentPeriodTimeRemaining==='END' ? endPeriod : activePeriod" [ngTemplateOutletContext]="{linescore:linescore}" >
+              
+                </ng-container >  
+                <p class="card-text" *ngIf="linescore.currentPeriodTimeRemaining==='END'; else activePeriod">End of {{linescore.currentPeriodOrdinal}}</p> 
+            </div>
+            <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th scope="col"></th>
+                    <th scope="col">1</th>
+                    <th scope="col">2</th>
+                    <th scope="col">3</th>
+                    <th scope="col">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row" style="text-align: left;">{{linescore.teams.home.team.name}}</th>
+                    <td *ngIf="linescore.periods.length > 0; else emptyTD">{{linescore.periods[0].home.goals}}</td>
+                    <td *ngIf="linescore.periods.length > 1; else emptyTD">{{linescore.periods[1].home.goals}}</td>
+                    <td *ngIf="linescore.periods.length > 2; else emptyTD">{{linescore.periods[2].home.goals}}</td>
+                    <td>{{linescore.teams.home.goals}}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row" style="text-align: left;">{{linescore.teams.away.team.name}}</th>
+                    <td *ngIf="linescore.periods.length > 0; else emptyTD">{{linescore.periods[0].home.shotsOnGoal}}</td>
+                    <td *ngIf="linescore.periods.length > 1; else emptyTD">{{linescore.periods[1].home.shotsOnGoal}}</td>
+                    <td *ngIf="linescore.periods.length > 2; else emptyTD">{{linescore.periods[2].home.shotsOnGoal}}</td>
+                    <td>{{linescore.teams.away.goals}}</td>
+                  </tr>
+                  <tr>
+                      <td colspan="5">
+                        <div class="btn-group btn-group-toggle btn-block" data-toggle="buttons">
+                            <label class="btn btn-secondary active">
+                              <input type="radio" name="options" id="option1" autocomplete="off" (onclick)="showGoals()" checked>Goals
+                            </label>
+                            <label class="btn btn-secondary">
+                              <input type="radio" name="options" id="option2" autocomplete="off" (onclick)="showShots()">Shots
+                            </label>
+                            <label class="btn btn-secondary">
+                              <input type="radio" name="options" id="option3" autocomplete="off"  (onclick)="showPIMS()">PIMS
+                            </label>
+                          </div>
+                      </td>
+                  </tr>
+                </tbody>
+              </table>
+        </div>
+    </div>
+<ng-template #emptyTD>
+    <td>-</td>
+</ng-template>
+
+<ng-template #activePeriod let-linescore="linescore">
+    <p>{{liescore}}</p>
+</ng-template>
+
+<ng-template #endPeriod let-linescore="linescore">
+    <p>{{linescore}}</p>
+</ng-template>

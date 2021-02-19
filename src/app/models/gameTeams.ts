@@ -1,6 +1,6 @@
-import { IGameTeam } from "./gameteam";
+import { IGameTeam } from './gameteam';
 
 export interface IGameTeams {
-    away: IGameTeam,
-    home: IGameTeam,
+    away: IGameTeam;
+    home: IGameTeam;
 }

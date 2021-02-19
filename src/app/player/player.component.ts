@@ -129,6 +129,7 @@ export class PlayerComponent implements OnInit {
     });
 
     this.authService.user$.subscribe(usr => {
+      debugger;
       this.user = usr;
     });
   }
@@ -259,67 +260,13 @@ export class PlayerComponent implements OnInit {
         });
       }
   }
-
-  // CanOtherPlayerSeeCards(): Observable<any> {
-  //   return this.authService.user$.pipe(
-  //     // tslint:disable-next-line: arrow-return-shorthand
-  //     map(user => {
-  //       return user;
-  //     }),
-  //     map(x => {
-  //       this.holdEmService.GetGamePlayer(x.currentGame, x.uid).subscribe(val => {
-  //         debugger;
-  //         return of(true);
-  //         //return true;
-  //       });
-  //       // this.holdEmService.GetGamePlayer(x.currentGame, x.uid).pipe(
-  //       //   map(abc => {
-  //       //     debugger;
-  //       //     return abc;
-  //       //   })
-  //       // );
-  //     })
-  //   );
-  //   // this.holdEmService.GetGamePlayer(this.gameRef, this.authService.user$.subscribe(user => { return user.uid })).pipe(
-  //   //   map(obj => {
-
-  //   //   })
-  //   // );
-  //       // this.holdEmService.Players$.subscribe(players => {
-  //       //   // for (let i = 0; i++; i < players.length){
-  //       //   //   //if (players[i].get('stack') === 0 && players[i].get('userRef') === user.uid) {
-  //       //   //     console.log(players[i]['stack'] + ' ' + players[i]['userRef'] + ' ' + user.uid);
-  //       //   //   //}
-  //       //   // }
-  //       //   let found = false;
-  //       //   players.forEach(element => {
-  //       //     if (element.get('stack') === 0 && element.get('userRef') === user.uid) {
-  //       //       found = true;
-  //       //       console.log(element.get('stack') + ' ' + element.get('userRef') + ' ' + user.uid);
-  //       //     }
-  //       //   });
-
-  //       // });
-  // }
-
   private IsViewingPlayer$(): Observable<boolean> {
     return this.authService.user$.pipe(
       map(user => {
+        debugger;
         return this.currentPlayer.userRef === user.uid ? true : false;
     }));
   }
-
-  // private IsViewingPlayer(): boolean {
-  //   // TODO - Use the obove - IsViewingPlayer$
-  //   if (this.currentPlayer.userRef === this.authService.FireUser.uid) {
-  //     return true;
-  //   } else { // check the stack size. Anyone 'out' can turn over
-  //     if (this.currentPlayer.stack === 0) {
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // }
 
   Bet(amount: number) {
     this.IsViewingPlayer$().subscribe(val => {

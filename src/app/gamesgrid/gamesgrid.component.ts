@@ -23,19 +23,18 @@ export class GamesgridComponent implements OnInit {
 
   ngOnInit(): void {
     this.authService.user$.subscribe((usr: any) => {
-      // this.user = usr.data();       
-      this.user = usr; 
-      this.games = new Array();           
+      // this.user = usr.data();
+      debugger;
+      this.user = usr;
+      this.games = new Array();
 
       this.gameService.NEWPlayersGames(this.user.uid).subscribe(data => {
         this.games = new Array();
         merge(...data).subscribe((docs: any) => {
-          this.games.push(docs.data())
+          this.games.push(docs.data());
         });
-      });      
+      });
     });
-
-    this.gameService.MigrateUserData();
   }
 
   GoToGame(gameId: string) {

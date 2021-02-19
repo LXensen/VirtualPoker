@@ -15,7 +15,6 @@ import { SETTINGS } from '@angular/fire/firestore';
 import { TableComponent } from './table/table.component';
 import { UsermanagementComponent } from './usermanagement/usermanagement.component';
 import { ProfileComponent } from './profile/profile.component';
-import { HeaderComponent } from './header/header.component';
 import { PlayerComponent } from './player/player.component';
 import { NewgameComponent } from './newgame/newgame.component';
 import { MainComponent } from './main/main.component';
@@ -28,6 +27,13 @@ import { FlopComponent } from './flop/flop.component';
 import { GamesgridComponent } from './gamesgrid/gamesgrid.component';
 import { FormsModule } from '@angular/forms';
 import { TickerComponent } from './ticker/ticker.component';
+import { TeamAbbr } from './shared/pipe/TeamAbbr';
+import { LivefeedComponent } from './livefeed/livefeed.component';
+import { LinescoreComponent } from './linescore/linescore.component';
+import { BlindComponent } from './blind/blind.component';
+import { PopupLayoutComponent } from './_layout/popup-layout/popup-layout.component';
+import { AppLayoutComponent } from './_layout/app-layout/app-layout.component';
+import { AppHeaderComponent } from './_layout/app-header/app-header.component';
 
 @NgModule({
   declarations: [
@@ -37,7 +43,6 @@ import { TickerComponent } from './ticker/ticker.component';
     TableComponent,
     UsermanagementComponent,
     ProfileComponent,
-    HeaderComponent,
     PlayerComponent,
     NewgameComponent,
     MainComponent,
@@ -47,7 +52,14 @@ import { TickerComponent } from './ticker/ticker.component';
     AccountComponent,
     FlopComponent,
     GamesgridComponent,
-    TickerComponent
+    TickerComponent,
+    TeamAbbr,
+    LivefeedComponent,
+    LinescoreComponent,
+    BlindComponent,
+    PopupLayoutComponent,
+    AppLayoutComponent,
+    AppHeaderComponent,
   ],
   imports: [
     BrowserModule,
