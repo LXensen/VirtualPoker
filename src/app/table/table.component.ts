@@ -34,10 +34,10 @@ export class TableComponent implements OnInit {
 
   ngOnInit(): void {
     this.authSvc.user$.subscribe(user => {
-        this.thisPlayer = this.holdEmService.LoadPlayer(user.uid);
+        this.thisPlayer = this.holdEmService.LoadPlayer(user.data().uid);
     });
 
-    let tempPlayers = [];
+    // let tempPlayers = [];
     this.holdEmService.NEWPlayers$.subscribe(player => {
       player.subscribe(data => {
       this.allPlayers.push(data.data());

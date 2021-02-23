@@ -5,7 +5,7 @@ import { User } from './../shared/model/user';
 import { Gametemplate } from './../shared/model/gametemplate';
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable } from 'rxjs';
 import * as firebase from 'firebase';
 import { AuthService } from './auth.service';
 
@@ -77,11 +77,11 @@ export class GameService {
       take(1),
       map((usr: any) => {
         // let user: User = usr.data();
-        let user: User = usr;
+        let user: User = usr.data();
         if (!emails.includes(user.email) ) {
           emails.push(user.email);
         }
-  
+
         displayname = user.displayName;
         userid = user.uid;
         newGame.userRef = user.uid;
@@ -105,34 +105,11 @@ export class GameService {
                          this.afStore.collection(this.GAMES).doc(`${gameRef.id}_Hand`).set(newHand);
                      });
             });
-            //this.afStore.collection(this.GAMES).doc(gameRef.id).update({gameRef: gameRef.id}).then();              
-               
-              //  const invites = new Array<any>();
-              //  emails.forEach(email => {
-              //     invites.push({email, state: 'invited', stack: stackSize});
-              //     // Find the user based on this email. Return the REFID, add a new game to their pastGames
-              //   });
-              //   return this.afStore.collection(this.INVITES).doc(gameRef.id).set({invites})
-              //           .then(() => {
-              //             console.log('in new game creation')
-              //             //this.afStore.collection(this.USERSGAMES).doc(userid).collection('games').doc(gameRef.id).set({id: gameRef.id}).then();
-              //             //  this.afStore.collection(this.USERSGAMES).doc(userid)
-              //             //    .set({pastGames: firebase.default.firestore.FieldValue.arrayUnion(gameRef.id)}, {merge: true});
-              //               // this.afStore.collection(this.USERGAMES).doc(this.userRef)
-              //               // .set({currentGame: gameRef.id, isCreator: true, hasStarted: false, pastGames: []}, {merge: true});
-              //             newPlayer.userRef = userid;
-              //             newPlayer.gameRef = gameRef.id;
-              //             newPlayer.name = displayname;
-              //             newPlayer.stack = stackSize;
-              //             this.afStore.collection(this.GAMES).doc(gameRef.id).collection('Players').doc(userid).set(newPlayer);
-              //             // initialize the doc that will hold the hand
-              //             this.afStore.collection(this.GAMES).doc(`${gameRef.id}_Hand`).set(newHand);
-              //         });
         });
     }));
   }
 
-  GetGame(gameRef: string) : Observable<any> {
+  GetGame(gameRef: string): Observable<any> {
     return this.afStore.collection(this.GAMES).doc<Gametemplate>(gameRef).get();
   }
 
@@ -154,7 +131,7 @@ export class GameService {
   //   return this.afStore.collection(this.USERSGAMES).doc(userId).valueChanges().pipe(
   //     map((pastgames: any) => {
   //       pastgames.pastGames.forEach(game => {
-  //         gamedocs.push(this.afStore.collection(this.GAMES).doc(game).get())          
+  //         gamedocs.push(this.afStore.collection(this.GAMES).doc(game).get())
   //       });
   //       return gamedocs;
   //     })
@@ -182,13 +159,10 @@ export class GameService {
         }
         invites.push(element);
       });
-debugger;
+
       if (canjoin) {
         const batchUpdate = this.afStore.firestore.batch();
 
-        // this.afStore.firestore.collection(this.USERSGAMES).doc(userRefId).collection(this.GAMES).doc(gameRefId).set({});
-        //const usersBatch = this.afStore.firestore.collection(this.USERS).doc(userRefId);
-        //batchUpdate.set(usersBatch, {pastGames: firebase.default.firestore.FieldValue.arrayUnion(gameRefId)}, {merge: true});
         const invitesBatch = this.afStore.firestore.collection(this.INVITES).doc(gameRefId);
         batchUpdate.set(invitesBatch, {invites});
 
@@ -275,7 +249,6 @@ debugger;
             });
             this.afStore.firestore.collection(this.INVITES).doc(gameRefId).set({invites: items});
           });
-          debugger;
     return batchUpdate.commit();
   }
 
@@ -284,7 +257,6 @@ debugger;
       doc.docs.forEach(element => {
 
       });
-      // this.afStore.firestore.collection(this.USERSGAMES).doc(doc)
-    })
+    });
   }
 }

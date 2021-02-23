@@ -8,6 +8,7 @@ import { Injectable } from '@angular/core';
 import * as firebase from 'firebase';
 import { Gametemplate } from '../shared/model/gametemplate';
 import { Hand } from '../shared/model/hand';
+import { User } from '../shared/model/user';
 @Injectable({
   providedIn: 'root'
 })
@@ -15,21 +16,18 @@ export class HoldemService {
   constructor(protected firestore: AngularFirestore,
               private authService: AuthService) {
     this.authService.user$.subscribe(user => {
-      //debugger;
-         this.GAMEREFID = user.currentGame;
-         this.gameRef = firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame);
-         this.handRef = firestore.collection(this.GAMESCOLLECTION).doc(`${user.currentGame}_${this.HANDCOLLECTION}`);
+      this.GAMEREFID = user.data().currentGame;
+      this.gameRef = firestore.collection(this.GAMESCOLLECTION).doc(user.data().currentGame);
+      this.handRef = firestore.collection(this.GAMESCOLLECTION).doc(`${user.data().currentGame}_${this.HANDCOLLECTION}`);
     });
 
     this.NEWPlayers$ = this.authService.user$.pipe(
       switchMap((user) => {
-        //debugger;
-        this.GAMEREFID = user.currentGame;
-        return this.firestore.collection(this.GAMESCOLLECTION).doc(`${user.currentGame}_sortedPlayers`).get();
+        this.GAMEREFID = user.data().currentGame;
+        return this.firestore.collection(this.GAMESCOLLECTION).doc(`${user.data().currentGame}_sortedPlayers`).get();
       }),
       switchMap((user) => {
-        let somearray = []
-        //debugger;
+        let somearray = [];
         user.data().players.forEach(player => {
           somearray.push(this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION).doc(player).get())
         });
@@ -39,13 +37,12 @@ export class HoldemService {
 
     this.Players$ = this.authService.user$.pipe(
         switchMap((user) => {
-          return this.firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame).collection(this.PLAYERSCOLLECTION).get();
+          return this.firestore.collection(this.GAMESCOLLECTION).doc(user.data().currentGame).collection(this.PLAYERSCOLLECTION).get();
         }));
 
     this.Hand$ = this.authService.user$.pipe(
         switchMap((user) => {
-          //debugger;
-          return this.firestore.collection(this.GAMESCOLLECTION).doc<Hand>(`${user.currentGame}_${this.HANDCOLLECTION}`).valueChanges();
+          return this.firestore.collection(this.GAMESCOLLECTION).doc<Hand>(`${user.data().currentGame}_${this.HANDCOLLECTION}`).valueChanges();
         }));
 }
   private currentDeck: Deck;
@@ -73,16 +70,11 @@ PushMessage(message: string) {
   this.handRef.update({message: message});
 }
 
-// GamePlayers(): Observable<any> {
-//   debugger;
-//   return this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION).get();
-// }
-
 GameState(): Observable<Gametemplate> {
   return this.authService.user$.pipe(
     switchMap((user: any) => {
       // TODO - This is getting hit a lot. Everytime the user is called?
-      return this.firestore.collection(this.GAMESCOLLECTION).doc<Gametemplate>(`${user.currentGame}`).valueChanges();
+      return this.firestore.collection(this.GAMESCOLLECTION).doc<Gametemplate>(`${user.data().currentGame}`).valueChanges();
     })
   );
 }
@@ -90,10 +82,9 @@ GameState(): Observable<Gametemplate> {
 LoadPlayer(playerRef: string): Observable<Player> {
   return this.authService.user$.pipe(
     switchMap((user: any) => {
-      //debugger;
       // return this.firestore.collection(this.GAMEPLAYERS).doc<Player>(`${user.currentGame}_${playerRef}`).valueChanges();
       return this.firestore.collection(this.GAMESCOLLECTION)
-      .doc(`${user.currentGame}`)
+      .doc(`${user.data().currentGame}`)
       .collection(this.PLAYERSCOLLECTION)
       .doc<Player>(`${playerRef}`).valueChanges();
     })
@@ -113,9 +104,9 @@ Deck(): Deck {
   this.authService.user$.subscribe(user => {
       // return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({dealer: true});
       return this.firestore.collection(this.GAMESCOLLECTION)
-            .doc(`${user.currentGame}`)
+            .doc(`${user.data().currentGame}`)
             .collection(this.PLAYERSCOLLECTION)
-            .doc<Player>(`${user.uid}`)
+            .doc<Player>(`${user.data().uid}`)
             .update({dealer: true});
   });
 
@@ -126,9 +117,9 @@ FoldPlayer() {
   this.authService.user$.subscribe(user => {
     // return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({folded: true, cardOne: this.GRAYCARD, cardTwo: this.GRAYCARD});
     return this.firestore.collection(this.GAMESCOLLECTION)
-          .doc(`${user.currentGame}`)
+          .doc(`${user.data().currentGame}`)
           .collection(this.PLAYERSCOLLECTION)
-          .doc<Player>(`${user.uid}`)
+          .doc<Player>(`${user.data().uid}`)
           .update({folded: true, cardOne: this.GRAYCARD, cardTwo: this.GRAYCARD});
   });
 }
@@ -137,9 +128,9 @@ CheckPlayer() {
   this.authService.user$.subscribe(user => {
     // return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({hasChecked: true});
     return this.firestore.collection(this.GAMESCOLLECTION)
-          .doc(`${user.currentGame}`)
+          .doc(`${user.data().currentGame}`)
           .collection(this.PLAYERSCOLLECTION)
-          .doc<Player>(`${user.uid}`)
+          .doc<Player>(`${user.data().uid}`)
           .update({hasChecked: true});
   });
 }
@@ -151,9 +142,9 @@ CheckPlayer() {
     this.authService.user$.subscribe(user => {
       // const playerref = this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`);
       const playerref = this.firestore.collection(this.GAMESCOLLECTION)
-                            .doc(`${user.currentGame}`)
+                            .doc(`${user.data().currentGame}`)
                             .collection(this.PLAYERSCOLLECTION)
-                            .doc(`${user.uid}`);
+                            .doc(`${user.data().uid}`);
 
       if ( anteeType === 'small' ) {
         playerref.update({stack: amount, smAntee: true, totalBet: increaseBy});
@@ -296,7 +287,6 @@ CheckPlayer() {
     // this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.GAMEREFID)
     this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID)
         .collection(this.PLAYERSCOLLECTION, ref => ref.where('folded', '==', false)
-        // .where('folded', '==', false)
         .where('canBet', '==', true))
         .get()
         .subscribe((playerRef) => {
@@ -393,10 +383,6 @@ CheckPlayer() {
                                   .update({
                                     isWinner: true
                                   });
-
-    // this.firestore.collection(this.GAMEPLAYERS).doc(`${this.GAMEREFID}_${playerRef}`).update({
-    //   isWinner: true
-    // });
   }
 
   RemoveWinner(playerRef: string) {
@@ -428,8 +414,7 @@ CheckPlayer() {
   StartGame(smallblind: number, bigblind: number, blindduration: number) {
     // TODO - This will be how we manage state
     this.authService.user$.subscribe(user => {
-      debugger;
-      this.firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame)
+      this.firestore.collection(this.GAMESCOLLECTION).doc(user.data().currentGame)
         .update({started: true,
           small: smallblind,
           big: bigblind,
@@ -441,7 +426,7 @@ CheckPlayer() {
 
   RaiseBlinds(smallBlind: number, bigBlind: number, blindduration: number) {
     this.authService.user$.subscribe(user => {
-      this.firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame)
+      this.firestore.collection(this.GAMESCOLLECTION).doc(user.data().currentGame)
         .update({small: smallBlind, big: bigBlind, blindDuration: blindduration, blindStartDate: firebase.default.firestore.Timestamp.now()});
     });
 

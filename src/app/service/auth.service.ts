@@ -9,10 +9,9 @@ import { User } from '../shared/model/user';
   providedIn: 'root'
 })
 export class AuthService {
-  user$: Observable<User>;
+  user$: Observable<any>;
 
   loggedin = false;
-  // FireUser: User = JSON.parse(localStorage.getItem('user')) !== null  ? JSON.parse(localStorage.getItem('user')) : null ;
 
 constructor(private afs: AngularFirestore,
             private afAuth: AngularFireAuth) {
@@ -29,8 +28,8 @@ constructor(private afs: AngularFirestore,
                       // };
                       // localStorage.setItem('user', JSON.stringify(userData));
                       // this.SetUserData(userData);
-                      // localStorage.setItem('firebaseuser', JSON.stringify(user));                   
-                      return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
+                      // localStorage.setItem('firebaseuser', JSON.stringify(user));
+                      return this.afs.doc(`users/${user.uid}`).get();
                     } else {
                       return of(null);
                     }
