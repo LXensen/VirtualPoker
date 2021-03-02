@@ -5,7 +5,7 @@ import { User } from './../shared/model/user';
 import { Gametemplate } from './../shared/model/gametemplate';
 import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import * as firebase from 'firebase';
 import { AuthService } from './auth.service';
 
@@ -77,7 +77,7 @@ export class GameService {
       take(1),
       map((usr: any) => {
         // let user: User = usr.data();
-        let user: User = usr.data();
+        const user: User = usr;
         if (!emails.includes(user.email) ) {
           emails.push(user.email);
         }
@@ -86,15 +86,15 @@ export class GameService {
         userid = user.uid;
         newGame.userRef = user.uid;
 
-      return this.afStore.collection(this.GAMES).add(newGame)
-        .then(gameRef => {
+        return this.afStore.collection(this.GAMES).add(newGame)
+            .then(gameRef => {
             this.afStore.collection(this.USERSGAMES).doc(userid).collection('games').doc(gameRef.id).set({id: gameRef.id}).then(() => {
-              this.afStore.collection(this.GAMES).doc(gameRef.id).update({gameRef: gameRef.id}).then();  
+              this.afStore.collection(this.GAMES).doc(gameRef.id).update({gameRef: gameRef.id}).then();
               const invites = new Array<any>();
               emails.forEach(email => {
                  invites.push({email, state: 'invited', stack: stackSize});
                });
-               return this.afStore.collection(this.INVITES).doc(gameRef.id).set({invites})
+              return this.afStore.collection(this.INVITES).doc(gameRef.id).set({invites})
                        .then(() => {
                          newPlayer.userRef = userid;
                          newPlayer.gameRef = gameRef.id;
@@ -119,7 +119,7 @@ export class GameService {
       map((pastGames: any) => {
         gamedocsRef = new Array();
         pastGames.forEach(element => {
-          gamedocsRef.push(this.afStore.collection(this.GAMES).doc(element.id).get())
+          gamedocsRef.push(this.afStore.collection(this.GAMES).doc(element.id).get());
         });
         return gamedocsRef;
       }));
@@ -163,6 +163,9 @@ export class GameService {
       if (canjoin) {
         const batchUpdate = this.afStore.firestore.batch();
 
+        // this.afStore.firestore.collection(this.USERSGAMES).doc(userRefId).collection(this.GAMES).doc(gameRefId).set({});
+        // const usersBatch = this.afStore.firestore.collection(this.USERS).doc(userRefId);
+        // batchUpdate.set(usersBatch, {pastGames: firebase.default.firestore.FieldValue.arrayUnion(gameRefId)}, {merge: true});
         const invitesBatch = this.afStore.firestore.collection(this.INVITES).doc(gameRefId);
         batchUpdate.set(invitesBatch, {invites});
 
@@ -237,26 +240,20 @@ export class GameService {
     const gamePlayersBatch = this.afStore.firestore.collection(this.GAMES).doc(gameRefId).collection('Players').doc(user.uid);
     batchUpdate.set(gamePlayersBatch, {name: user.displayName}, {merge: true});
 
-    this.afStore.firestore.collection(this.INVITES).doc(gameRefId).get()
-          .then(details => {
-            const items: Array<any> = [];
-            details.data().invites.forEach(invite => {
-              if (invite.email === user.email){
-                items.push({email: invite.email, stack: invite.stack, state: 'joined'});
-              } else {
-                items.push({email: invite.email, stack: invite.stack, state: invite.state});
-              }
-            });
-            this.afStore.firestore.collection(this.INVITES).doc(gameRefId).set({invites: items});
-          });
+    // this.afStore.firestore.collection(this.INVITES).doc(gameRefId).get()
+    //       .then(details => {
+    //         debugger;
+    //         const items: Array<any> = [];
+    //         details.data().invites.forEach(invite => {
+    //           if (invite.email === user.email){
+    //             items.push({email: invite.email, stack: invite.stack, state: 'joined'});
+    //           } else {
+    //             items.push({email: invite.email, stack: invite.stack, state: invite.state});
+    //           }
+    //         });
+    //         this.afStore.firestore.collection(this.INVITES).doc(gameRefId).set({invites: items});
+    //       });
+
     return batchUpdate.commit();
-  }
-
-  MigrateUserData(){
-    this.afStore.firestore.collection(this.USERS).get().then(doc => {
-      doc.docs.forEach(element => {
-
-      });
-    });
   }
 }

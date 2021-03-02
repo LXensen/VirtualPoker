@@ -62,7 +62,7 @@ constructor(private afs: AngularFirestore,
       this.SetUserData(userData);
 
       return (await this.afAuth.currentUser).updateProfile({
-        displayName: name
+        displayName: user.displayName
       });
   }
   async ConfirmPasswordReset(code: string, password: string): Promise<any>{
@@ -113,7 +113,7 @@ constructor(private afs: AngularFirestore,
     const batchUpdate = this.afs.firestore.batch();
 
     const usersGames = this.afs.firestore.collection('usersGames').doc(user.uid);
-    batchUpdate.set(usersGames, {},{merge: true});
+    batchUpdate.set(usersGames, {}, {merge: true});
 
     const userRef = this.afs.firestore.collection('users').doc(user.uid);
     const userData: User = {

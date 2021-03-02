@@ -29,7 +29,7 @@ export class HoldemService {
       switchMap((user) => {
         let somearray = [];
         user.data().players.forEach(player => {
-          somearray.push(this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION).doc(player).get())
+          somearray.push(this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION).doc(player).get());
         });
         return somearray;
       })

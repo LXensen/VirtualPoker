@@ -34,8 +34,6 @@ export class GamesgridComponent implements OnInit {
         });
       });
     });
-
-    this.gameService.MigrateUserData();
   }
 
   GoToGame(gameId: string) {
