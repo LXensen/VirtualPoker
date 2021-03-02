@@ -76,8 +76,8 @@ export class GameService {
     return this.authService.user$.pipe(
       take(1),
       map((usr: any) => {
-        // let user: User = usr.data();
-        const user: User = usr;
+        const user: User = usr.data();
+        // const user: User = usr;
         if (!emails.includes(user.email) ) {
           emails.push(user.email);
         }
