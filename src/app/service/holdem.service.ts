@@ -27,13 +27,11 @@ export class HoldemService {
 
     this.NEWPlayers$ = this.authService.user$.pipe(
       switchMap((user) => {
-        debugger;
         this.GAMEREFID = user.currentGame;
         return this.firestore.collection(this.GAMESCOLLECTION).doc(`${user.currentGame}_sortedPlayers`).get();
       }),
       switchMap((user) => {
         let somearray = [];
-        debugger;
         user.data().players.forEach(player => {
           somearray.push(this.firestore.collection(this.GAMESCOLLECTION).doc(this.GAMEREFID).collection(this.PLAYERSCOLLECTION).doc(player).get())
         });
@@ -43,13 +41,11 @@ export class HoldemService {
 
     this.Players$ = this.authService.user$.pipe(
         switchMap((user) => {
-          debugger;
           return this.firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame).collection(this.PLAYERSCOLLECTION).get();
         }));
 
     this.Hand$ = this.authService.user$.pipe(
         switchMap((user) => {
-          debugger;
           return this.firestore.collection(this.GAMESCOLLECTION).doc<Hand>(`${user.currentGame}_${this.HANDCOLLECTION}`).valueChanges();
         }));
 }
@@ -88,7 +84,7 @@ GameState(): Observable<Gametemplate> {
     switchMap((user: any) => {
       // OK from change of auth
       // TODO - This is getting hit a lot. Everytime the user is called?
-      return this.firestore.collection(this.GAMESCOLLECTION).doc<Gametemplate>(`${user.data().currentGame}`).valueChanges();
+      return this.firestore.collection(this.GAMESCOLLECTION).doc<Gametemplate>(`${user.currentGame}`).valueChanges();
     })
   );
 }
@@ -96,7 +92,6 @@ GameState(): Observable<Gametemplate> {
 LoadPlayer(playerRef: string): Observable<Player> {
   return this.authService.user$.pipe(
     switchMap((user: any) => {
-      debugger;
       // return this.firestore.collection(this.GAMEPLAYERS).doc<Player>(`${user.currentGame}_${playerRef}`).valueChanges();
       return this.firestore.collection(this.GAMESCOLLECTION)
       .doc(`${user.currentGame}`)
@@ -117,7 +112,6 @@ Deck(): Deck {
  SetDealer() {
   this.messageSource.next('dealerSet');
   this.authService.user$.subscribe(user => {
-      debugger
       // return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({dealer: true});
       return this.firestore.collection(this.GAMESCOLLECTION)
             .doc(`${user.currentGame}`)
@@ -131,7 +125,6 @@ Deck(): Deck {
 FoldPlayer() {
   // remove this player from the list of PlayingPlayers
   this.authService.user$.subscribe(user => {
-    debugger;
     // return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({folded: true, cardOne: this.GRAYCARD, cardTwo: this.GRAYCARD});
     return this.firestore.collection(this.GAMESCOLLECTION)
           .doc(`${user.currentGame}`)
@@ -143,7 +136,6 @@ FoldPlayer() {
 
 CheckPlayer() {
   this.authService.user$.subscribe(user => {
-    debugger;
     // return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({hasChecked: true});
     return this.firestore.collection(this.GAMESCOLLECTION)
           .doc(`${user.currentGame}`)
@@ -158,7 +150,6 @@ CheckPlayer() {
     const increaseBy = firebase.default.firestore.FieldValue.increment(Number(betAmount));
 
     this.authService.user$.subscribe(user => {
-      debugger;
       // const playerref = this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`);
       const playerref = this.firestore.collection(this.GAMESCOLLECTION)
                             .doc(`${user.currentGame}`)

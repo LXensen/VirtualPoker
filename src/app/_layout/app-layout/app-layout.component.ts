@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { slideTransition } from 'src/app/route-animations';
+import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-layout',
@@ -9,7 +10,8 @@ import { slideTransition } from 'src/app/route-animations';
 })
 export class AppLayoutComponent implements OnInit {
 
-  constructor() { }
+  constructor() {
+   }
 
   ngOnInit(): void {
   }

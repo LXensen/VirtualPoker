@@ -76,7 +76,6 @@ export class GameService {
     return this.authService.user$.pipe(
       take(1),
       map((usr: any) => {
-        debugger;
         // let user: User = usr.data();
         const user: User = usr;
         if (!emails.includes(user.email) ) {
@@ -90,7 +89,7 @@ export class GameService {
         return this.afStore.collection(this.GAMES).add(newGame)
             .then(gameRef => {
             this.afStore.collection(this.USERSGAMES).doc(userid).collection('games').doc(gameRef.id).set({id: gameRef.id}).then(() => {
-              this.afStore.collection(this.GAMES).doc(gameRef.id).update({gameRef: gameRef.id}).then();  
+              this.afStore.collection(this.GAMES).doc(gameRef.id).update({gameRef: gameRef.id}).then();
               const invites = new Array<any>();
               emails.forEach(email => {
                  invites.push({email, state: 'invited', stack: stackSize});
@@ -110,7 +109,7 @@ export class GameService {
     }));
   }
 
-  GetGame(gameRef: string) : Observable<any> {
+  GetGame(gameRef: string): Observable<any> {
     return this.afStore.collection(this.GAMES).doc<Gametemplate>(gameRef).get();
   }
 
@@ -120,7 +119,7 @@ export class GameService {
       map((pastGames: any) => {
         gamedocsRef = new Array();
         pastGames.forEach(element => {
-          gamedocsRef.push(this.afStore.collection(this.GAMES).doc(element.id).get())
+          gamedocsRef.push(this.afStore.collection(this.GAMES).doc(element.id).get());
         });
         return gamedocsRef;
       }));
@@ -132,7 +131,7 @@ export class GameService {
   //   return this.afStore.collection(this.USERSGAMES).doc(userId).valueChanges().pipe(
   //     map((pastgames: any) => {
   //       pastgames.pastGames.forEach(game => {
-  //         gamedocs.push(this.afStore.collection(this.GAMES).doc(game).get())          
+  //         gamedocs.push(this.afStore.collection(this.GAMES).doc(game).get())
   //       });
   //       return gamedocs;
   //     })

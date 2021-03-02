@@ -2,7 +2,7 @@ export const TEAM = {
     NJD : 'New Jersey Devils',
     NYI : 'New York Islanders',
     NYR : 'New York Rangers',
-    MTL : 'Montreal Canadiens',
+    MTL : 'Montréal Canadiens',
     OTT : 'Ottawa Senators',
     TOR : 'Toronto Maple Leafs',
     BOS : 'Boston Bruins',

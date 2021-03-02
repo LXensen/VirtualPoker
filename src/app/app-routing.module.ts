@@ -32,17 +32,25 @@ import { PopupLayoutComponent } from './_layout/popup-layout/popup-layout.compon
 // ];
 const routes: Routes = [
   {
-    path: '', component: MainComponent
+    path: '',
+    component: MainComponent
   },
   {
-    path: '', component: AppLayoutComponent,
+    path: '',
+    component: AppLayoutComponent,
+    children: [
+      {path: 'game/:gameid', component: GameComponent, canActivate: [AuthGuard]},
+    ]
+  },
+  {
+    path: '',
+    component: AppLayoutComponent,
           children: [
             {path: '', component: MainComponent},
             {path: 'signin', component: SigninComponent},
             {path: 'signup', component: SignupComponent},
             {path: 'signup/:gameid', component: SignupComponent},
             {path: 'games', component: GamesComponent, canActivate: [AuthGuard]},
-            {path: 'game/:gameid', component: GameComponent, canActivate: [AuthGuard]},
             {path: 'newgame', component: NewgameComponent, canActivate: [AuthGuard]},
             {path: 'invites/:id', component: InvitesComponent, canActivate: [AuthGuard]},
             {path: 'account', component: AccountComponent, canActivate: [AuthGuard]},

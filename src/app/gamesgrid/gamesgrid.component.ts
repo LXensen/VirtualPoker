@@ -24,7 +24,6 @@ export class GamesgridComponent implements OnInit {
   ngOnInit(): void {
     this.authService.user$.subscribe((usr: any) => {
       // this.user = usr.data();
-      debugger;
       this.user = usr;
       this.games = new Array();
 

@@ -105,7 +105,6 @@ constructor(private afs: AngularFirestore,
         take(1),
         map(user => !!user),
         tap(loggedin => {
-          debugger;
           console.log('is logged in: ' + loggedin);
           return (loggedin ? true : false);
         }));
@@ -115,7 +114,7 @@ constructor(private afs: AngularFirestore,
     const batchUpdate = this.afs.firestore.batch();
 
     const usersGames = this.afs.firestore.collection('usersGames').doc(user.uid);
-    batchUpdate.set(usersGames, {},{merge: true});
+    batchUpdate.set(usersGames, {}, {merge: true});
 
     const userRef = this.afs.firestore.collection('users').doc(user.uid);
     const userData: User = {
