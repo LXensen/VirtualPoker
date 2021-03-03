@@ -15,7 +15,9 @@ export class AppHeaderComponent implements OnInit {
 
   ngOnInit(): void {
     // see if this url contains /game/
-    this.blindVisible = this.router.parseUrl(this.router.url).root.children[PRIMARY_OUTLET].segments[0].path === 'game';
+    if (this.router.parseUrl(this.router.url).root.hasChildren()){
+      this.blindVisible = this.router.parseUrl(this.router.url).root.children[PRIMARY_OUTLET].segments[0].path === 'game';
+    }
   }
 
 }

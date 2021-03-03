@@ -10,8 +10,8 @@
             <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
           </li>
           <div *ngIf="authService.user$ | async; then authenticated else guest" >
-            HI
-          </div>          
+            
+          </div>           
         </ul>
       </div>
     <app-blind *ngIf="blindVisible"></app-blind>
