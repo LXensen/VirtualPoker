@@ -18,20 +18,17 @@ export class GameComponent implements OnInit {
 
   constructor(private holdEmService: HoldemService) {
     this.timerCountdown = '';
-    debugger;
    }
 
   ngOnInit(): void {
     this.holdEmService.NEWPlayers$.subscribe(players => {
       players.subscribe(data => {
-        this.players.push(data.data())
-      })
+        this.players.push(data.data());
+      });
     });
-    // this.holdEmService.Players$.subscribe(players => {
-    //   this.players = players.docs;
-    // });
+
     this.holdEmService.GameState().subscribe(state => {
-      debugger;
+
       this.gamestate = state;
       if (!state.completed) {
         // this.bigBlindAmount = state.big;
@@ -48,7 +45,7 @@ export class GameComponent implements OnInit {
                                 this.starttime.getSeconds());
 
         const currentTime = new Date().getTime();
-        let delta = (currentTime - this.endtime.getTime()) / 1000;
+        // let delta = (currentTime - this.endtime.getTime()) / 1000;
         // let timeDelta = delta - Number.parseInt(state.blindDuration, 10);
         const timeDelta = (currentTime - this.endtime.getTime()) / 1000 - Number.parseInt(state.blindDuration, 10);
         // console.log(currentTime + ' ' + this.endtime + ' ' + (delta / 1000) + ' ' + delta); //state.blindStartDate.toDate() + ' ' + this.endtime);
@@ -57,27 +54,13 @@ export class GameComponent implements OnInit {
           // JS version here
           this.startCountdown((timeDelta));
 
-          // Observable version. Not sure about performance here?
-          // interval(1000).pipe(
-          //   map(val => {
-          //     timeDelta += 1;
-          //     // https://stackoverflow.com/questions/3733227/javascript-seconds-to-minutes-and-seconds
-          //     // NOTE THE COMMENT ABOUT NEGATIVE
-          //     // Only use this when counint down for the blinds
-          //     const min = Math.floor(timeDelta / 60) + 1;
-          //     const sec = timeDelta % 60;
-          //     // console.log(min + ':' + Math.trunc(sec) + ' ' +  val);
-
-          //     // this.timerCountdown = `${Math.abs(min)}:${Math.abs(Math.trunc(sec))}`;
-          //     return val;
-          //   }),
-          //   takeWhile(v => Number.parseInt(timeDelta.toFixed(), 10) < 0 )).subscribe();
         }
       }
     });
   }
 
   startCountdown(seconds) {
+    this.glowingtext = 'form-control mr-sm-2';
     let timeDelta = seconds;
 
     const newinterval = setInterval(() => {
@@ -99,7 +82,6 @@ export class GameComponent implements OnInit {
   }
 
   StartGame(small: any, big: any, duration: number) {
-    debugger;
       let durationValid = false;
       let smallValid = false;
       let bigValid = false;

@@ -129,7 +129,7 @@ export class PlayerComponent implements OnInit {
     });
 
     this.authService.user$.subscribe(usr => {
-      this.user = usr;
+      this.user = usr.data();
     });
   }
 
@@ -305,7 +305,7 @@ export class PlayerComponent implements OnInit {
   private IsViewingPlayer$(): Observable<boolean> {
     return this.authService.user$.pipe(
       map(user => {
-        return this.currentPlayer.userRef === user.uid ? true : false;
+        return this.currentPlayer.userRef === user.data().uid ? true : false;
     }));
   }
 

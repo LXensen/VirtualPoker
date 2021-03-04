@@ -9,10 +9,9 @@ import { User } from '../shared/model/user';
   providedIn: 'root'
 })
 export class AuthService {
-  user$: Observable<User>;
+  user$: Observable<any>;
 
   loggedin = false;
-  // FireUser: User = JSON.parse(localStorage.getItem('user')) !== null  ? JSON.parse(localStorage.getItem('user')) : null ;
 
 constructor(private afs: AngularFirestore,
             private afAuth: AngularFireAuth) {
@@ -29,8 +28,8 @@ constructor(private afs: AngularFirestore,
                       // };
                       // localStorage.setItem('user', JSON.stringify(userData));
                       // this.SetUserData(userData);
-                      // localStorage.setItem('firebaseuser', JSON.stringify(user));                   
-                      return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
+                      // localStorage.setItem('firebaseuser', JSON.stringify(user));
+                      return this.afs.doc(`users/${user.uid}`).get();
                     } else {
                       return of(null);
                     }
@@ -63,7 +62,7 @@ constructor(private afs: AngularFirestore,
       this.SetUserData(userData);
 
       return (await this.afAuth.currentUser).updateProfile({
-        displayName: name
+        displayName: user.displayName
       });
   }
   async ConfirmPasswordReset(code: string, password: string): Promise<any>{
@@ -114,7 +113,7 @@ constructor(private afs: AngularFirestore,
     const batchUpdate = this.afs.firestore.batch();
 
     const usersGames = this.afs.firestore.collection('usersGames').doc(user.uid);
-    batchUpdate.set(usersGames, {},{merge: true});
+    batchUpdate.set(usersGames, {}, {merge: true});
 
     const userRef = this.afs.firestore.collection('users').doc(user.uid);
     const userData: User = {
