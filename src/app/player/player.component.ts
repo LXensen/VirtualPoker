@@ -151,6 +151,7 @@ export class PlayerComponent implements OnInit {
         if (this.currentPlayer.stack - this.bigAmount >= 0) {
           this.holdEmService.Bet(this.currentPlayer.stack - this.bigAmount,
                                 this.currentPlayer.userRef,
+                                this.currentPlayer.gameRef,
                                 this.currentPlayer.name,
                                 this.bigAmount);
         }
@@ -165,6 +166,7 @@ export class PlayerComponent implements OnInit {
       // give them theire blind back
       this.holdEmService.Bet((this.currentPlayer.stack + this.smallAmount),
                             this.currentPlayer.userRef,
+                            this.currentPlayer.gameRef,
                             this.currentPlayer.name,
                             -Math.abs(this.smallAmount),
                             '-small');
@@ -175,6 +177,7 @@ export class PlayerComponent implements OnInit {
         if (!this.currentPlayer.smAntee && !this.currentPlayer.bgAntee) {
           this.holdEmService.Bet((this.currentPlayer.stack - this.smallAmount),
                               this.currentPlayer.userRef,
+                              this.currentPlayer.gameRef,
                               this.currentPlayer.name,
                               this.smallAmount,
                               'small');
@@ -187,12 +190,14 @@ export class PlayerComponent implements OnInit {
   }
 
   Big() {
+    debugger;
     if ( this.isBigBlind) {
       this.isBigBlind = false;
       this.bigAnteeClass = this.secondaryUnChecked;
       // give them theire blind back
       this.holdEmService.Bet((this.currentPlayer.stack + this.bigAmount),
                         this.currentPlayer.userRef,
+                        this.currentPlayer.gameRef,
                         this.currentPlayer.name,
                         -Math.abs(this.bigAmount),
                         '-big');
@@ -203,6 +208,7 @@ export class PlayerComponent implements OnInit {
         if (!this.currentPlayer.smAntee && !this.currentPlayer.bgAntee) {
           this.holdEmService.Bet((this.currentPlayer.stack - this.bigAmount),
                               this.currentPlayer.userRef,
+                              this.currentPlayer.gameRef,
                               this.currentPlayer.name,
                               this.bigAmount,
                               'big');
@@ -214,13 +220,13 @@ export class PlayerComponent implements OnInit {
   }
 
   FoldHand() {
-    this.IsViewingPlayer$().subscribe(val => {
-      if (val) {
-        this.holdEmService.FoldPlayer();
+    // this.IsViewingPlayer$().subscribe(val => {
+    //   if (val) {
+        this.holdEmService.FoldPlayer(this.currentPlayer.userRef, this.currentPlayer.gameRef);
         this.holdEmService.PushMessage(this.currentPlayer.name + ' folds');
         this.isDisabled = true;
-      }
-    });
+    //   }
+    // });
   }
 
   Check() {
@@ -273,7 +279,10 @@ export class PlayerComponent implements OnInit {
           this.holdEmService.PushMessage(this.currentPlayer.name + ' you can not bet nothing. Try again....');
         } else {
           if (this.currentPlayer.stack - amount >= 0) {
-            this.holdEmService.Bet(this.currentPlayer.stack - amount, this.currentPlayer.userRef, this.currentPlayer.name, amount);
+            this.holdEmService.Bet(this.currentPlayer.stack - amount,
+                                   this.currentPlayer.userRef,
+                                   this.currentPlayer.gameRef,
+                                   this.currentPlayer.name, amount);
             this.betInput.nativeElement.value = '';
           } else {
             this.holdEmService.PushMessage(this.currentPlayer.name + ' tried to bet more than he has...Try again');

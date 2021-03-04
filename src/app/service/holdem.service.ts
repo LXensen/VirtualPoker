@@ -122,16 +122,13 @@ Deck(): Deck {
 
 }
 
-FoldPlayer() {
+FoldPlayer(playerID: string, gameID: string) {
   // remove this player from the list of PlayingPlayers
-  this.authService.user$.subscribe(user => {
-    // return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({folded: true, cardOne: this.GRAYCARD, cardTwo: this.GRAYCARD});
     return this.firestore.collection(this.GAMESCOLLECTION)
-          .doc(`${user.currentGame}`)
+          .doc(gameID)
           .collection(this.PLAYERSCOLLECTION)
-          .doc<Player>(`${user.uid}`)
+          .doc<Player>(playerID)
           .update({folded: true, cardOne: this.GRAYCARD, cardTwo: this.GRAYCARD});
-  });
 }
 
 CheckPlayer() {
@@ -145,46 +142,50 @@ CheckPlayer() {
   });
 }
   // implements small, big and 'normal' bet
-  Bet(amount: number, playerRef: string, name: string, betAmount: number, anteeType?: string) {
+  Bet(amount: number,
+      playerID: string,
+      currentGameID: string,
+      name: string,
+      betAmount: number,
+      anteeType?: string) {
     let msg = '';
     const increaseBy = firebase.default.firestore.FieldValue.increment(Number(betAmount));
 
-    this.authService.user$.subscribe(user => {
-      // const playerref = this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`);
-      const playerref = this.firestore.collection(this.GAMESCOLLECTION)
-                            .doc(`${user.currentGame}`)
-                            .collection(this.PLAYERSCOLLECTION)
-                            .doc(`${user.uid}`);
 
-      if ( anteeType === 'small' ) {
+      // const playerref = this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`);
+    const playerref = this.firestore.collection(this.GAMESCOLLECTION)
+                            .doc(currentGameID)
+                            .collection(this.PLAYERSCOLLECTION)
+                            .doc(playerID);
+
+    if ( anteeType === 'small' ) {
         playerref.update({stack: amount, smAntee: true, totalBet: increaseBy});
         msg = name + ' anteed ' + betAmount;
       }
 
-      if ( anteeType === '-small' ) {
+    if ( anteeType === '-small' ) {
         playerref.update({stack: amount, smAntee: false, totalBet: increaseBy});
         msg = name + ' undid the small for ' + betAmount;
       }
 
-      if ( anteeType === 'big' ) {
+    if ( anteeType === 'big' ) {
         playerref.update({stack: amount, bgAntee: true, totalBet: increaseBy});
         msg = name + ' anteed ' + betAmount;
       }
 
-      if ( anteeType === '-big' ) {
+    if ( anteeType === '-big' ) {
         playerref.update({stack: amount, bgAntee: false, totalBet: increaseBy});
         msg = name + ' undid the big for ' + betAmount;
       }
       // just a 'normal' bet
-      if (anteeType === undefined) {
+    if (anteeType === undefined) {
         playerref.update({stack: amount, totalBet: increaseBy});
         msg = name + ' bets ' + betAmount;
       }
 
-      this.handRef.update({potSize: increaseBy});
+    this.handRef.update({potSize: increaseBy});
 
-      this.PushMessage(msg);
-    });
+    this.PushMessage(msg);
   }
   // END Player Functions
 
