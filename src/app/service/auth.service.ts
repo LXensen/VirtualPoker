@@ -1,9 +1,10 @@
 import { Observable, of } from 'rxjs';
 import { Injectable, isDevMode } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
-import { switchMap, take, tap, map, mergeAll } from 'rxjs/operators';
+import { AngularFirestore } from '@angular/fire/firestore';
+import { switchMap, take, tap, map } from 'rxjs/operators';
 import { User } from '../shared/model/user';
+import { LocalStorageService } from '../shared/services/local-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,21 +16,21 @@ export class AuthService {
   // FireUser: User = JSON.parse(localStorage.getItem('user')) !== null  ? JSON.parse(localStorage.getItem('user')) : null ;
 
 constructor(private afs: AngularFirestore,
-            private afAuth: AngularFireAuth) {
+            private afAuth: AngularFireAuth,
+            private svcLocalStorage: LocalStorageService) {
                 // Get the AuthUser, then transform it (switchMap) to get the app user doc (users/user.id)
                 this.user$ = this.afAuth.authState.pipe(
                   switchMap(user => {
                     if (user) {
                       this.loggedin = true;
                       // localstorage? The observable state has alreayd been done...?
-                      // const userData: User = {
-                      //   uid: user.uid,
-                      //   email: user.email,
-                      //   displayName: user.displayName
-                      // };
-                      // localStorage.setItem('user', JSON.stringify(userData));
-                      // this.SetUserData(userData);
-                      // localStorage.setItem('firebaseuser', JSON.stringify(user));                   
+                      const userData: User = {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName
+                      };
+                      this.svcLocalStorage.set('user', userData);
+                   
                       return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
                     } else {
                       return of(null);
@@ -124,6 +125,7 @@ constructor(private afs: AngularFirestore,
     };
     batchUpdate.set(userRef, userData);
 
+    this.svcLocalStorage.set('user', userData);
     return batchUpdate.commit();
   }
 }

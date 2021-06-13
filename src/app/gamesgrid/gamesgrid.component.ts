@@ -5,6 +5,8 @@ import { Gametemplate } from './../shared/model/gametemplate';
 import { Component, OnInit } from '@angular/core';
 import { User } from '../shared/model/user';
 import { merge, Observable } from 'rxjs';
+import { Local } from 'protractor/built/driverProviders';
+import { LocalStorageService } from '../shared/services/local-storage.service';
 @Component({
   selector: 'app-gamesgrid',
   templateUrl: './gamesgrid.component.html',
@@ -17,6 +19,7 @@ export class GamesgridComponent implements OnInit {
 
   constructor(private authService: AuthService,
               private gameService: GameService,
+              private svcLocalStorage: LocalStorageService,
               private router: Router) {
 
    }
@@ -34,14 +37,15 @@ export class GamesgridComponent implements OnInit {
         });
       });      
     });
-
-    this.gameService.MigrateUserData();
   }
 
   GoToGame(gameId: string) {
   // set the players active game to this id
       this.gameService.SetPlayersCurrentGame(gameId, this.user).then(() => {
         // update the stack of the player then route
+        this.user.currentGame = gameId;
+        this.svcLocalStorage.set('user', this.user);
+
         this.router.navigate(['game/' + gameId]);
       });
   }
