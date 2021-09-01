@@ -76,7 +76,9 @@ export class NewgameComponent implements OnInit {
         // if (isDevMode()){
         //   firebase.default.functions().useEmulator('localhost', 5001);
         // }
-        this.gameSvc.NewGame(this.addedPlayers, `${this.model.year}/${this.model.month}/${this.model.day}`, stack).subscribe(x => {
+        this.gameSvc.NewGame(this.addedPlayers, 
+                              `${this.model.year}/${this.model.month}/${this.model.day}`, 
+                                stack).then(x => {
           this.router.navigate(['account']);
         });
         // const newgame = firebase.functions().httpsCallable('createGame');

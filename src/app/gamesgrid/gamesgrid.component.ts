@@ -45,7 +45,6 @@ export class GamesgridComponent implements OnInit {
         // update the stack of the player then route
         this.user.currentGame = gameId;
         this.svcLocalStorage.set('user', this.user);
-
         this.router.navigate(['game/' + gameId]);
       });
   }

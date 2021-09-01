@@ -1,5 +1,5 @@
 import { Player } from './../shared/model/player';
-import { AuthService } from './auth.service';
+// import { AuthService } from './auth.service';
 import { Deck } from './../shared/model/deck';
 import { AngularFirestore, AngularFirestoreDocument } from '@angular/fire/firestore';
 import { Observable, BehaviorSubject, of } from 'rxjs';
@@ -34,58 +34,45 @@ export class HoldemService {
   NEWPlayers$: Observable<any>;
   Hand$: Observable<Hand>;
 
+  get user(): User {
+    return this.localStorage.get<User>('user');
+  }
+
   constructor(protected firestore: AngularFirestore,
               private localStorage: LocalStorageService,
-              private authService: AuthService) {
+              // private authService: AuthService
+              ) {
       if (!this.localStorage.isLocalStorageSupported){
           alert('Local storage is required to run the game')
       }
       
-      if (this.localStorage.get<User>('user') === null){
-        this.authService.user$.subscribe(user => {
-          // this.gameRefId = user.currentGame;
-          // this.gameRef = firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame);
-          this.handRef = firestore.collection(this.GAMESCOLLECTION).doc(`${user.currentGame}_${this.HANDCOLLECTION}`);
-          const userData: User = {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            currentGame: user.currentGame
-          };
-          this.localStorage.set('user', userData);
+      // ********************************************************************************
+      // We shouldn't check the the authService. There should be a user. If not redirect?
+      // ********************************************************************************
+      // console.log(this.localStorage.get<User>('user'));
+      // if (this.user === null){
+        // this.authService.user$.subscribe(user => {
+        //   // this.gameRefId = user.currentGame;
+        //   // this.gameRef = firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame);
+        //   this.handRef = firestore.collection(this.GAMESCOLLECTION).doc(`${this.user.currentGame}_${this.HANDCOLLECTION}`);
+        //   const userData: User = {
+        //     uid: user.uid,
+        //     email: user.email,
+        //     displayName: user.displayName,
+        //     currentGame: user.currentGame
+        //   };
+        //   this.user = userData;
 
-          this.NEWPlayers$ = this.firestore.collection(this.GAMESCOLLECTION).doc(`${user.currentGame}_sortedPlayers`).get();
-        });
-      }
- 
+        //   // this.NEWPlayers$ = this.firestore.collection(this.GAMESCOLLECTION).doc(`${this.user.currentGame}_sortedPlayers`).get();
 
-      this.NEWPlayers$ = this.authService.user$.pipe(
-        switchMap((user) => {
-          //debugger;
-          this.gameRefId = user.currentGame;
-          return this.firestore.collection(this.GAMESCOLLECTION).doc(`${user.currentGame}_sortedPlayers`).get();
-        }),
-        switchMap((user) => {
-          let somearray = []
-          //debugger;
-          user.data().players.forEach(player => {
-            somearray.push(this.firestore.collection(this.GAMESCOLLECTION).doc(this.gameRefId).collection(this.PLAYERSCOLLECTION).doc(player).get())
-          });
-          return somearray;
-        })
-        );
+        //   this.InitPlayers();
+        // });
 
-      this.Players$ = this.authService.user$.pipe(
-          switchMap((user) => {
-            return this.firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame).collection(this.PLAYERSCOLLECTION).get();
-          }));
+      // } else {
+        this.InitPlayers();
 
-      this.Hand$ = this.authService.user$.pipe(
-          switchMap((user) => {
-            //debugger;
-            return this.firestore.collection(this.GAMESCOLLECTION).doc<Hand>(`${user.currentGame}_${this.HANDCOLLECTION}`).valueChanges();
-          }));
-}
+      //}
+  }
   
 PushMessage(message: string) {
   // tslint:disable-next-line:object-literal-shorthand
@@ -93,25 +80,26 @@ PushMessage(message: string) {
 }
 
 GameState(): Observable<Gametemplate> {
-  return this.authService.user$.pipe(
-    switchMap((user: any) => {
-      // TODO - This is getting hit a lot. Everytime the user is called?
-      return this.firestore.collection(this.GAMESCOLLECTION).doc<Gametemplate>(`${user.currentGame}`).valueChanges();
-    })
-  );
+  return this.firestore.collection(this.GAMESCOLLECTION).doc<Gametemplate>(`${this.user.currentGame}`).valueChanges();
+  // return this.authService.user$.pipe(
+  //   switchMap((user: any) => {
+  //     // TODO - This is getting hit a lot. Everytime the user is called?
+  //     return this.firestore.collection(this.GAMESCOLLECTION).doc<Gametemplate>(`${user.currentGame}`).valueChanges();
+  //   })
+  // );
 }
 
 LoadPlayer(playerRef: string): Observable<Player> {
-  return this.authService.user$.pipe(
-    switchMap((user: any) => {
+  // return this.authService.user$.pipe(
+    // switchMap((user: any) => {
       //debugger;
       // return this.firestore.collection(this.GAMEPLAYERS).doc<Player>(`${user.currentGame}_${playerRef}`).valueChanges();
       return this.firestore.collection(this.GAMESCOLLECTION)
-      .doc(`${user.currentGame}`)
+      .doc(`${this.user.currentGame}`)
       .collection(this.PLAYERSCOLLECTION)
       .doc<Player>(`${playerRef}`).valueChanges();
-    })
-  );
+    // })
+  // );
 }
 
 Deck(): Deck {
@@ -124,50 +112,50 @@ Deck(): Deck {
   // Player Functions
  SetDealer() {
   this.messageSource.next('dealerSet');
-  this.authService.user$.subscribe(user => {
+  // this.authService.user$.subscribe(user => {
       // return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({dealer: true});
       return this.firestore.collection(this.GAMESCOLLECTION)
-            .doc(`${user.currentGame}`)
+            .doc(`${this.user.currentGame}`)
             .collection(this.PLAYERSCOLLECTION)
-            .doc<Player>(`${user.uid}`)
+            .doc<Player>(`${this.user.uid}`)
             .update({dealer: true});
-  });
+  // });
 
 }
 
 FoldPlayer() {
   // remove this player from the list of PlayingPlayers
-  this.authService.user$.subscribe(user => {
+  // this.authService.user$.subscribe(user => {
     // return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({folded: true, cardOne: this.GRAYCARD, cardTwo: this.GRAYCARD});
     return this.firestore.collection(this.GAMESCOLLECTION)
-          .doc(`${user.currentGame}`)
+          .doc(`${this.user.currentGame}`)
           .collection(this.PLAYERSCOLLECTION)
-          .doc<Player>(`${user.uid}`)
+          .doc<Player>(`${this.user.uid}`)
           .update({folded: true, cardOne: this.GRAYCARD, cardTwo: this.GRAYCARD});
-  });
+  // });
 }
 
 CheckPlayer() {
-  this.authService.user$.subscribe(user => {
+  // this.authService.user$.subscribe(user => {
     // return this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`).update({hasChecked: true});
     return this.firestore.collection(this.GAMESCOLLECTION)
-          .doc(`${user.currentGame}`)
+          .doc(`${this.user.currentGame}`)
           .collection(this.PLAYERSCOLLECTION)
-          .doc<Player>(`${user.uid}`)
+          .doc<Player>(`${this.user.uid}`)
           .update({hasChecked: true});
-  });
+  // });
 }
   // implements small, big and 'normal' bet
   Bet(amount: number, playerRef: string, name: string, betAmount: number, anteeType?: string) {
     let msg = '';
     const increaseBy = firebase.default.firestore.FieldValue.increment(Number(betAmount));
 
-    this.authService.user$.subscribe(user => {
+    // this.authService.user$.subscribe(user => {
       // const playerref = this.firestore.collection(this.GAMEPLAYERS).doc(`${user.currentGame}_${user.uid}`);
       const playerref = this.firestore.collection(this.GAMESCOLLECTION)
-                            .doc(`${user.currentGame}`)
+                            .doc(`${this.user.currentGame}`)
                             .collection(this.PLAYERSCOLLECTION)
-                            .doc(`${user.uid}`);
+                            .doc(`${this.user.uid}`);
 
       if ( anteeType === 'small' ) {
         playerref.update({stack: amount, smAntee: true, totalBet: increaseBy});
@@ -197,7 +185,7 @@ CheckPlayer() {
       this.handRef.update({potSize: increaseBy});
 
       this.PushMessage(msg);
-    });
+    // });
   }
   // END Player Functions
 
@@ -218,14 +206,14 @@ CheckPlayer() {
             winningPlayer.forEach(player => {
               // const playerref = this.firestore.collection(this.GAMEPLAYERS).doc(`${this.gameRefId}_${player}`);
               const playerref = this.firestore.collection(this.GAMESCOLLECTION)
-                                  .doc(this.gameRefId)
+                                  .doc(this.user.currentGame)
                                   .collection(this.PLAYERSCOLLECTION)
                                   .doc(player);
               playerref.update({stack: increaseStacktBy});
             });
 
             // this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.gameRefId)
-            this.firestore.collection(this.GAMESCOLLECTION).doc(this.gameRefId).collection(this.PLAYERSCOLLECTION, ref => ref.where('gameRef', '==', this.gameRefId)
+            this.firestore.collection(this.GAMESCOLLECTION).doc(this.user.currentGame).collection(this.PLAYERSCOLLECTION, ref => ref.where('gameRef', '==', this.user.currentGame)
             .where('canBet', '==', true))
             .get()
             .subscribe((val) => {
@@ -233,7 +221,7 @@ CheckPlayer() {
               val.forEach((doc) => {
                 // const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.gameRefId}_${doc.data().userRef}`);
                 const batchRef = this.firestore.firestore.collection(this.GAMESCOLLECTION)
-                                  .doc(this.gameRefId)
+                                  .doc(this.user.currentGame)
                                   .collection(this.PLAYERSCOLLECTION)
                                   .doc(doc.data().userRef);
                 // reset each Player
@@ -249,11 +237,11 @@ CheckPlayer() {
                   dealer: false});
               });
               batch.commit().then(() => {
-                this.firestore.collection(this.GAMESCOLLECTION).doc(this.gameRefId).collection(this.PLAYERSCOLLECTION, ref => ref.where('canBet', '==', true)
+                this.firestore.collection(this.GAMESCOLLECTION).doc(this.user.currentGame).collection(this.PLAYERSCOLLECTION, ref => ref.where('canBet', '==', true)
                               .where('stack', '<', 1))
                               .get().subscribe(players => {
                                   players.forEach((player) => {
-                                    const playerref = this.firestore.collection(this.GAMESCOLLECTION).doc(this.gameRefId).collection(this.PLAYERSCOLLECTION).doc(player.get('userRef'));
+                                    const playerref = this.firestore.collection(this.GAMESCOLLECTION).doc(this.user.currentGame).collection(this.PLAYERSCOLLECTION).doc(player.get('userRef'));
 
                                     playerref.update({canBet: false, stack: 0});
                                   });
@@ -275,7 +263,6 @@ CheckPlayer() {
     this.messageSource.next('newHand');
   }
 
-
   // Dealer functions
   DealHand() {
     // instantiate a new deck
@@ -284,7 +271,7 @@ CheckPlayer() {
     this.Deck().Shuffle();
     // should only get players that are still 'active'
     // this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.gameRefId)
-    this.firestore.collection(this.GAMESCOLLECTION).doc(this.gameRefId)
+    this.firestore.collection(this.GAMESCOLLECTION).doc(this.user.currentGame)
         .collection(this.PLAYERSCOLLECTION, ref => ref.where('folded', '==', false)
         // .where('folded', '==', false)
         .where('canBet', '==', true))
@@ -294,7 +281,7 @@ CheckPlayer() {
           playerRef.forEach((player) => {
           // const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.gameRefId}_${player.data().userRef}`);
           const batchRef = this.firestore.firestore.collection(this.GAMESCOLLECTION)
-                          .doc(this.gameRefId)
+                          .doc(this.user.currentGame)
                           .collection(this.PLAYERSCOLLECTION)
                           .doc(player.data().userRef);
           const card = this.Deck().cards.pop();
@@ -308,7 +295,7 @@ CheckPlayer() {
     // Now deal the second card, cardTwo. Doing this rathe than the for loop so that it approximates actual 'dealing', where
     // you deal one card at a time to each player
     // this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.gameRefId)
-    this.firestore.collection(this.GAMESCOLLECTION).doc(this.gameRefId)
+    this.firestore.collection(this.GAMESCOLLECTION).doc(this.user.currentGame)
         .collection(this.PLAYERSCOLLECTION, ref => ref.where('folded', '==', false)
         // .where('folded', '==', false)
         .where('canBet', '==', true))
@@ -318,7 +305,7 @@ CheckPlayer() {
           playerRef.forEach((player) => {
           // const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.gameRefId}_${player.data().userRef}`);
           const batchRef = this.firestore.firestore.collection(this.GAMESCOLLECTION)
-                                .doc(this.gameRefId)
+                                .doc(this.user.currentGame)
                                 .collection(this.PLAYERSCOLLECTION)
                                 .doc(player.data().userRef);
 
@@ -333,7 +320,6 @@ CheckPlayer() {
   }
 
   GetGamePlayer(gameRef: string, userRef: string) {
-    // return this.firestore.collection(this.GAMEPLAYERS).doc(`${gameRef}_${userRef}`).get();
     return this.firestore.collection(this.GAMESCOLLECTION)
             .doc(`${gameRef}`)
             .collection(this.PLAYERSCOLLECTION)
@@ -371,7 +357,7 @@ CheckPlayer() {
 
   ShowCards() {
     // Show all non-folded players
-    this.firestore.collection(this.GAMESCOLLECTION).doc(this.gameRefId).collection(this.PLAYERSCOLLECTION, ref => ref.where('folded', '==', false)
+    this.firestore.collection(this.GAMESCOLLECTION).doc(this.user.currentGame).collection(this.PLAYERSCOLLECTION, ref => ref.where('folded', '==', false)
     .where('canBet', '==', true))
     .get()
     // this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.gameRefId)
@@ -383,7 +369,7 @@ CheckPlayer() {
       val.forEach((doc) => {
         // const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.gameRefId}_${doc.data().userRef}`);
         const batchRef = this.firestore.firestore.collection(this.GAMESCOLLECTION)
-                          .doc(this.gameRefId)
+                          .doc(this.user.currentGame)
                           .collection(this.PLAYERSCOLLECTION)
                           .doc(doc.data().userRef);
         batch.update(batchRef, {showCards: true});
@@ -401,16 +387,12 @@ CheckPlayer() {
     });
 
     this.firestore.collection(this.GAMESCOLLECTION)
-                                  .doc(`${this.gameRefId}`)
+                                  .doc(`${this.user.currentGame}`)
                                   .collection(this.PLAYERSCOLLECTION)
                                   .doc(`${playerRef}`)
                                   .update({
                                     isWinner: true
                                   });
-
-    // this.firestore.collection(this.GAMEPLAYERS).doc(`${this.gameRefId}_${playerRef}`).update({
-    //   isWinner: true
-    // });
   }
 
   RemoveWinner(playerRef: string) {
@@ -418,7 +400,7 @@ CheckPlayer() {
       winner: firebase.default.firestore.FieldValue.arrayRemove(playerRef)
     });
 
-    this.firestore.collection(this.gameRefId).doc(playerRef).update({
+    this.firestore.collection(this.user.currentGame).doc(playerRef).update({
       isWinner: false
     });
   }
@@ -426,14 +408,14 @@ CheckPlayer() {
   FinishGame(firstPlaceRef: string, firstPlaceName: string, secondPlaceRef: string, secondPlaceName: string): Promise<void> {
     const batchEndGame = this.firestore.firestore.batch();
 
-    const gameEndUpdate = this.firestore.firestore.collection(this.GAMESCOLLECTION).doc(this.gameRefId);
+    const gameEndUpdate = this.firestore.firestore.collection(this.GAMESCOLLECTION).doc(this.user.currentGame);
     batchEndGame.set(gameEndUpdate, {completed: true,
                                     winner: firstPlaceRef,
                                     second: secondPlaceRef,
                                     winnerName: firstPlaceName,
                                     secondName: secondPlaceName}, {merge: true});
 
-    const gameDeleteInvites = this.firestore.firestore.collection(this.INVITESCOLLECTION).doc(this.gameRefId);
+    const gameDeleteInvites = this.firestore.firestore.collection(this.INVITESCOLLECTION).doc(this.user.currentGame);
     batchEndGame.delete(gameDeleteInvites);
 
     return batchEndGame.commit();
@@ -441,41 +423,36 @@ CheckPlayer() {
 
   StartGame(smallblind: number, bigblind: number, blindduration: number) {
     // TODO - This will be how we manage state
-    this.authService.user$.subscribe(user => {
-      debugger;
-      this.firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame)
+    // this.authService.user$.subscribe(user => {
+      this.firestore.collection(this.GAMESCOLLECTION).doc(this.user.currentGame)
         .update({started: true,
           small: smallblind,
           big: bigblind,
           blindDuration: blindduration,
           blindStartDate: firebase.default.firestore.Timestamp.now(),
           gameStartDate: firebase.default.firestore.Timestamp.now()});
-    });
+    //});
   }
 
   RaiseBlinds(smallBlind: number, bigBlind: number, blindduration: number) {
-    this.authService.user$.subscribe(user => {
-      this.firestore.collection(this.GAMESCOLLECTION).doc(user.currentGame)
+    // this.authService.user$.subscribe(user => {
+      this.firestore.collection(this.GAMESCOLLECTION).doc(this.user.currentGame)
         .update({small: smallBlind, big: bigBlind, blindDuration: blindduration, blindStartDate: firebase.default.firestore.Timestamp.now()});
-    });
+    // });
 
   }
   // Helpers
   private ResetPlayersBetTotal() {
     const batch = this.firestore.firestore.batch();
 
-    this.firestore.collection(this.GAMESCOLLECTION).doc(this.gameRefId).collection(this.PLAYERSCOLLECTION, ref => ref.where('folded', '==', false)
+    this.firestore.collection(this.GAMESCOLLECTION).doc(this.user.currentGame).collection(this.PLAYERSCOLLECTION, ref => ref.where('folded', '==', false)
     .where('canBet', '==', true))
     .get()
-    // this.firestore.collection(this.GAMEPLAYERS, ref => ref.where('gameRef', '==', this.gameRefId)
-    // .where('folded', '==', false)
-    // .where('canBet', '==', true))
-    // .get()
     .subscribe((playerRef) => {
       playerRef.forEach((player) => {
       // const batchRef = this.firestore.firestore.collection(this.GAMEPLAYERS).doc(`${this.gameRefId}_${player.data().userRef}`);
       const batchRef = this.firestore.firestore.collection(this.GAMESCOLLECTION)
-                        .doc(this.gameRefId)
+                        .doc(this.user.currentGame)
                         .collection(this.PLAYERSCOLLECTION)
                         .doc(player.data().userRef);
       batch.update(batchRef, {totalBet: 0, hasChecked: false});
@@ -484,5 +461,60 @@ CheckPlayer() {
 
       });
     });
+  }
+
+  private InitPlayers(){
+    this.NEWPlayers$ = this.firestore.collection(this.GAMESCOLLECTION).doc(`${this.user.currentGame}_sortedPlayers`).get().pipe(
+      switchMap((usr) => {
+        let somearray = []
+        usr.data().players.forEach(player => {
+          somearray.push(this.firestore.collection(this.GAMESCOLLECTION).doc(this.user.currentGame).collection(this.PLAYERSCOLLECTION).doc(player).get())
+        });
+        return somearray;
+      })
+    );
+    // this.NEWPlayers$ = this.authService.user$.pipe(
+    //   switchMap((user) => {
+    //     return this.firestore.collection(this.GAMESCOLLECTION).doc(`${this.user.currentGame}_sortedPlayers`).get();
+    //   }),
+    //   switchMap((user) => {
+    //     let somearray = []
+    //     //debugger;
+    //     user.data().players.forEach(player => {
+    //       somearray.push(this.firestore.collection(this.GAMESCOLLECTION).doc(this.user.currentGame).collection(this.PLAYERSCOLLECTION).doc(player).get())
+    //     });
+    //     return somearray;
+    //   })
+    //   );
+
+    this.handRef = this.firestore.collection(this.GAMESCOLLECTION).doc(`${this.user.currentGame}_${this.HANDCOLLECTION}`);
+    this.Players$ = this.firestore.collection(this.GAMESCOLLECTION).doc(this.user.currentGame).collection(this.PLAYERSCOLLECTION).get();
+    this.Hand$ = this.firestore.collection(this.GAMESCOLLECTION).doc<Hand>(`${this.user.currentGame}_${this.HANDCOLLECTION}`).valueChanges();
+    // this.NEWPlayers$ = this.authService.user$.pipe(
+    //   switchMap((user) => {
+    //     //debugger;
+    //     // this.gameRefId = user.currentGame;
+    //     return this.firestore.collection(this.GAMESCOLLECTION).doc(`${this.localStorage.get<User>('user').currentGame}_sortedPlayers`).get();
+    //   }),
+    //   switchMap((user) => {
+    //     let somearray = []
+    //     //debugger;
+    //     user.data().players.forEach(player => {
+    //       somearray.push(this.firestore.collection(this.GAMESCOLLECTION).doc(this.localStorage.get<User>('user').currentGame).collection(this.PLAYERSCOLLECTION).doc(player).get())
+    //     });
+    //     return somearray;
+    //   })
+    //   );
+
+    // this.Players$ = this.authService.user$.pipe(
+    //     switchMap((user) => {
+    //       return this.firestore.collection(this.GAMESCOLLECTION).doc(this.localStorage.get<User>('user').currentGame).collection(this.PLAYERSCOLLECTION).get();
+    //     }));
+
+    // this.Hand$ = this.authService.user$.pipe(
+    //     switchMap((user) => {
+    //       //debugger;
+    //       return this.firestore.collection(this.GAMESCOLLECTION).doc<Hand>(`${this.localStorage.get<User>('user').currentGame}_${this.HANDCOLLECTION}`).valueChanges();
+    //     }));
   }
 }

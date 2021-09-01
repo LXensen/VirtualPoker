@@ -23,6 +23,7 @@ export class SigninComponent implements OnInit {
       console.log('should redirect...');
       this.router.navigate(['account']);
     }).catch((error) => {
+      console.log(error);
       window.alert(error.message);
     });
   }

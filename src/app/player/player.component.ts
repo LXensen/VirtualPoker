@@ -1,11 +1,12 @@
-import { AuthService } from './../service/auth.service';
+//import { AuthService } from './../service/auth.service';
 import { Player } from './../shared/model/player';
 import { User } from '../shared/model/user';
 import { HoldemService } from './../service/holdem.service';
 import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter, Input } from '@angular/core';
 
-import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+//import { Observable, of } from 'rxjs';
+//import { map } from 'rxjs/operators';
+import { LocalStorageService } from '../shared/services/local-storage.service';
 
 @Component({
   selector: 'app-player',
@@ -120,7 +121,9 @@ export class PlayerComponent implements OnInit {
     }
   }
   constructor(private holdEmService: HoldemService,
-              private authService: AuthService) { }
+              private localStorage: LocalStorageService,
+              //private authService: AuthService
+              ) { }
 
   ngOnInit(): void {
     this.holdEmService.GameState().subscribe(state => {
@@ -128,9 +131,9 @@ export class PlayerComponent implements OnInit {
       this.smallAmount = state.small;
     });
 
-    this.authService.user$.subscribe(usr => {
-      this.user = usr;
-    });
+    //this.authService.user$.subscribe(usr => {
+      this.user = this.localStorage.get<User>('user');
+    //});
   }
 
   ToggleWinner() {
@@ -146,8 +149,9 @@ export class PlayerComponent implements OnInit {
   }
 
   Min() {
-    this.IsViewingPlayer$().subscribe(val => {
-      if (val) {
+    //this.IsViewingPlayer$().subscribe(val => {
+    //  if (val) {
+      if(this.IsViewingPlayer()){
         if (this.currentPlayer.stack - this.bigAmount >= 0) {
           this.holdEmService.Bet(this.currentPlayer.stack - this.bigAmount,
                                 this.currentPlayer.userRef,
@@ -155,7 +159,8 @@ export class PlayerComponent implements OnInit {
                                 this.bigAmount);
         }
       }
-    });
+    //  }
+    //});
   }
 
   Small() {
@@ -163,7 +168,7 @@ export class PlayerComponent implements OnInit {
       this.isSmallBlind = false;
       this.smallAnteClass = this.secondaryUnChecked;
       // give them theire blind back
-      this.holdEmService.Bet((this.currentPlayer.stack + this.smallAmount),
+      this.holdEmService.Bet((Math.abs(this.currentPlayer.stack) + Math.abs(this.smallAmount)),
                             this.currentPlayer.userRef,
                             this.currentPlayer.name,
                             -Math.abs(this.smallAmount),
@@ -191,7 +196,8 @@ export class PlayerComponent implements OnInit {
       this.isBigBlind = false;
       this.bigAnteeClass = this.secondaryUnChecked;
       // give them theire blind back
-      this.holdEmService.Bet((this.currentPlayer.stack + this.bigAmount),
+      debugger;
+      this.holdEmService.Bet((Math.abs(this.currentPlayer.stack) + Math.abs(this.bigAmount)),
                         this.currentPlayer.userRef,
                         this.currentPlayer.name,
                         -Math.abs(this.bigAmount),
@@ -201,6 +207,7 @@ export class PlayerComponent implements OnInit {
       this.bigAnteeClass = this.secondaryUnChecked;
       if (this.currentPlayer.stack - this.currentPlayer.bgAntee >= 0) {
         if (!this.currentPlayer.smAntee && !this.currentPlayer.bgAntee) {
+          debugger;
           this.holdEmService.Bet((this.currentPlayer.stack - this.bigAmount),
                               this.currentPlayer.userRef,
                               this.currentPlayer.name,
@@ -214,38 +221,44 @@ export class PlayerComponent implements OnInit {
   }
 
   FoldHand() {
-    this.IsViewingPlayer$().subscribe(val => {
-      if (val) {
+    //this.IsViewingPlayer$().subscribe(val => {
+    //  if (val) {
+      if(this.IsViewingPlayer()){
         this.holdEmService.FoldPlayer();
         this.holdEmService.PushMessage(this.currentPlayer.name + ' folds');
         this.isDisabled = true;
       }
-    });
+    //  }
+    //});
   }
 
   Check() {
-    this.IsViewingPlayer$().subscribe(val => {
-      if (val) {
+    //this.IsViewingPlayer$().subscribe(val => {
+    //  if (val) {
+      if(this.IsViewingPlayer()){
         this.holdEmService.CheckPlayer();
         this.holdEmService.PushMessage(this.currentPlayer.name + ' checks');
       }
-    });
+    //  }
+    //});
   }
 
   Dealer() {
-    this.IsViewingPlayer$().subscribe(val => {
-      if (val && !this.isDisabled) {
+    //this.IsViewingPlayer$().subscribe(val => {
+    //  if (val && !this.isDisabled) {
+      if(this.IsViewingPlayer()){
           this.holdEmService.SetDealer();
-       }
-    });
+      }
+    //   }
+    //});
   }
 
   TurnOverCards() {
       if ( this.currentPlayer.cardOne === '' ) {
         this.holdEmService.PushMessage('No card to see yet. No one has dealt!');
       } else {
-        this.IsViewingPlayer$().subscribe(val => {
-          if (val) {
+        //this.IsViewingPlayer$().subscribe(val => {
+          if (this.IsViewingPlayer()) {
             this.card1SRC = this.cardPath + this.currentPlayer.cardOne + '.png';
             this.card2SRC = this.cardPath + this.currentPlayer.cardTwo + '.png';
           } else {
@@ -256,74 +269,25 @@ export class PlayerComponent implements OnInit {
               }
             });
           }
-        });
+        //});
       }
   }
 
-  // CanOtherPlayerSeeCards(): Observable<any> {
+  // private IsViewingPlayer$(): Observable<boolean> {
   //   return this.authService.user$.pipe(
-  //     // tslint:disable-next-line: arrow-return-shorthand
   //     map(user => {
-  //       return user;
-  //     }),
-  //     map(x => {
-  //       this.holdEmService.GetGamePlayer(x.currentGame, x.uid).subscribe(val => {
-  //         debugger;
-  //         return of(true);
-  //         //return true;
-  //       });
-  //       // this.holdEmService.GetGamePlayer(x.currentGame, x.uid).pipe(
-  //       //   map(abc => {
-  //       //     debugger;
-  //       //     return abc;
-  //       //   })
-  //       // );
-  //     })
-  //   );
-  //   // this.holdEmService.GetGamePlayer(this.gameRef, this.authService.user$.subscribe(user => { return user.uid })).pipe(
-  //   //   map(obj => {
-
-  //   //   })
-  //   // );
-  //       // this.holdEmService.Players$.subscribe(players => {
-  //       //   // for (let i = 0; i++; i < players.length){
-  //       //   //   //if (players[i].get('stack') === 0 && players[i].get('userRef') === user.uid) {
-  //       //   //     console.log(players[i]['stack'] + ' ' + players[i]['userRef'] + ' ' + user.uid);
-  //       //   //   //}
-  //       //   // }
-  //       //   let found = false;
-  //       //   players.forEach(element => {
-  //       //     if (element.get('stack') === 0 && element.get('userRef') === user.uid) {
-  //       //       found = true;
-  //       //       console.log(element.get('stack') + ' ' + element.get('userRef') + ' ' + user.uid);
-  //       //     }
-  //       //   });
-
-  //       // });
+  //       return this.currentPlayer.userRef === user.uid ? true : false;
+  //   }));
   // }
 
-  private IsViewingPlayer$(): Observable<boolean> {
-    return this.authService.user$.pipe(
-      map(user => {
-        return this.currentPlayer.userRef === user.uid ? true : false;
-    }));
+  private IsViewingPlayer(): boolean {
+    return this.currentPlayer.userRef === this.user.uid ? true : false;
   }
 
-  // private IsViewingPlayer(): boolean {
-  //   // TODO - Use the obove - IsViewingPlayer$
-  //   if (this.currentPlayer.userRef === this.authService.FireUser.uid) {
-  //     return true;
-  //   } else { // check the stack size. Anyone 'out' can turn over
-  //     if (this.currentPlayer.stack === 0) {
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // }
-
   Bet(amount: number) {
-    this.IsViewingPlayer$().subscribe(val => {
-      if (val) {
+    //this.IsViewingPlayer$().subscribe(val => {
+    //  if (val) {
+      if(this.IsViewingPlayer()){
         if ( !amount ) {
           this.holdEmService.PushMessage(this.currentPlayer.name + ' you can not bet nothing. Try again....');
         } else {
@@ -335,6 +299,7 @@ export class PlayerComponent implements OnInit {
           }
         }
       }
-    });
+    //  }
+    //});
   }
 }

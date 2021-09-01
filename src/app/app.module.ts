@@ -26,6 +26,7 @@ import { AccountComponent } from './account/account.component';
 import { FlopComponent } from './flop/flop.component';
 import { GamesgridComponent } from './gamesgrid/gamesgrid.component';
 import { FormsModule } from '@angular/forms';
+import { MobileComponent } from './mobile/mobile.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import { FormsModule } from '@angular/forms';
     InvitesComponent,
     AccountComponent,
     FlopComponent,
-    GamesgridComponent
+    GamesgridComponent,
+    MobileComponent
   ],
   imports: [
     BrowserModule,

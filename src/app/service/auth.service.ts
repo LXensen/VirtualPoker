@@ -29,8 +29,10 @@ constructor(private afs: AngularFirestore,
                         email: user.email,
                         displayName: user.displayName
                       };
-                      this.svcLocalStorage.set('user', userData);
-                   
+                      if(this.svcLocalStorage.get<User>('user') === null){
+                        this.svcLocalStorage.set('user', userData);
+                      }
+                      
                       return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
                     } else {
                       return of(null);
@@ -67,6 +69,7 @@ constructor(private afs: AngularFirestore,
         displayName: name
       });
   }
+
   async ConfirmPasswordReset(code: string, password: string): Promise<any>{
     return this.afAuth.confirmPasswordReset(code, password);
   }

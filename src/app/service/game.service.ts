@@ -7,7 +7,8 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable, forkJoin } from 'rxjs';
 import * as firebase from 'firebase';
-import { AuthService } from './auth.service';
+// import { AuthService } from './auth.service';
+import { LocalStorageService } from '../shared/services/local-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,15 @@ export class GameService {
   private USERSGAMES = 'usersGames';
   private BLUE_BACK = 'blue_back';
 
-  constructor(private afStore: AngularFirestore, private authService: AuthService) {
+  get user(): User {
+    return this.localStorage.get<User>('user');
+  }
+  constructor(private afStore: AngularFirestore, 
+              // private authService: AuthService, 
+              private localStorage: LocalStorageService) {
+                if (!this.localStorage.isLocalStorageSupported){
+                  alert('Local storage is required to run the game')
+              }
   }
 
   // **********************
@@ -73,18 +82,18 @@ export class GameService {
       winner: new Array<string>(),
     };
 
-    return this.authService.user$.pipe(
-      take(1),
-      map((usr: any) => {
+    //return this.authService.user$.pipe(
+      //take(1),
+      //map((usr: any) => {
         // let user: User = usr.data();
-        let user: User = usr;
-        if (!emails.includes(user.email) ) {
-          emails.push(user.email);
+        //let user: User = this.user;
+        if (!emails.includes(this.user.email) ) {
+          emails.push(this.user.email);
         }
   
-        displayname = user.displayName;
-        userid = user.uid;
-        newGame.userRef = user.uid;
+        displayname = this.user.displayName;
+        userid = this.user.uid;
+        newGame.userRef = this.user.uid;
 
       return this.afStore.collection(this.GAMES).add(newGame)
         .then(gameRef => {
@@ -129,7 +138,7 @@ export class GameService {
               //             this.afStore.collection(this.GAMES).doc(`${gameRef.id}_Hand`).set(newHand);
               //         });
         });
-    }));
+    // }));
   }
 
   GetGame(gameRef: string) : Observable<any> {
@@ -182,7 +191,7 @@ export class GameService {
         }
         invites.push(element);
       });
-debugger;
+
       if (canjoin) {
         const batchUpdate = this.afStore.firestore.batch();
 
@@ -277,14 +286,5 @@ debugger;
           });
           debugger;
     return batchUpdate.commit();
-  }
-
-  MigrateUserData(){
-    this.afStore.firestore.collection(this.USERS).get().then(doc => {
-      doc.docs.forEach(element => {
-
-      });
-      // this.afStore.firestore.collection(this.USERSGAMES).doc(doc)
-    })
   }
 }
