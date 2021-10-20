@@ -114,31 +114,7 @@ export class GameService {
                          this.afStore.collection(this.GAMES).doc(`${gameRef.id}_Hand`).set(newHand);
                      });
             });
-            //this.afStore.collection(this.GAMES).doc(gameRef.id).update({gameRef: gameRef.id}).then();              
-               
-              //  const invites = new Array<any>();
-              //  emails.forEach(email => {
-              //     invites.push({email, state: 'invited', stack: stackSize});
-              //     // Find the user based on this email. Return the REFID, add a new game to their pastGames
-              //   });
-              //   return this.afStore.collection(this.INVITES).doc(gameRef.id).set({invites})
-              //           .then(() => {
-              //             console.log('in new game creation')
-              //             //this.afStore.collection(this.USERSGAMES).doc(userid).collection('games').doc(gameRef.id).set({id: gameRef.id}).then();
-              //             //  this.afStore.collection(this.USERSGAMES).doc(userid)
-              //             //    .set({pastGames: firebase.default.firestore.FieldValue.arrayUnion(gameRef.id)}, {merge: true});
-              //               // this.afStore.collection(this.USERGAMES).doc(this.userRef)
-              //               // .set({currentGame: gameRef.id, isCreator: true, hasStarted: false, pastGames: []}, {merge: true});
-              //             newPlayer.userRef = userid;
-              //             newPlayer.gameRef = gameRef.id;
-              //             newPlayer.name = displayname;
-              //             newPlayer.stack = stackSize;
-              //             this.afStore.collection(this.GAMES).doc(gameRef.id).collection('Players').doc(userid).set(newPlayer);
-              //             // initialize the doc that will hold the hand
-              //             this.afStore.collection(this.GAMES).doc(`${gameRef.id}_Hand`).set(newHand);
-              //         });
         });
-    // }));
   }
 
   GetGame(gameRef: string) : Observable<any> {
@@ -156,19 +132,6 @@ export class GameService {
         return gamedocsRef;
       }));
   }
-
-  // PlayersGames(userId: string): Observable<any> {
-  //   let gamedocs: any[] = Array<any>();
-
-  //   return this.afStore.collection(this.USERSGAMES).doc(userId).valueChanges().pipe(
-  //     map((pastgames: any) => {
-  //       pastgames.pastGames.forEach(game => {
-  //         gamedocs.push(this.afStore.collection(this.GAMES).doc(game).get())          
-  //       });
-  //       return gamedocs;
-  //     })
-  //   );
-  //   }
 
    async AddNewlySignedUpPlayerToInvitedGame(gameRefId: string,
                                              userRefId: string,
@@ -194,14 +157,9 @@ export class GameService {
 
       if (canjoin) {
         const batchUpdate = this.afStore.firestore.batch();
-
-        // this.afStore.firestore.collection(this.USERSGAMES).doc(userRefId).collection(this.GAMES).doc(gameRefId).set({});
-        //const usersBatch = this.afStore.firestore.collection(this.USERS).doc(userRefId);
-        //batchUpdate.set(usersBatch, {pastGames: firebase.default.firestore.FieldValue.arrayUnion(gameRefId)}, {merge: true});
         const invitesBatch = this.afStore.firestore.collection(this.INVITES).doc(gameRefId);
         batchUpdate.set(invitesBatch, {invites});
 
-        // const gamesUserAddBatch = this.afStore.firestore.collection(this.GAMEPLAYERS).doc(`${gameRefId}_${userRefId}`);
         const gamesUserAddBatch = this.afStore.firestore.collection(this.GAMES).doc(gameRefId).collection('Players').doc(userRefId);
         batchUpdate.set(gamesUserAddBatch, {
           bgAntee: false,

@@ -6,11 +6,11 @@ import { Component, OnInit, ViewChild, ElementRef, Output, EventEmitter, Input }
 import { LocalStorageService } from '../shared/services/local-storage.service';
 
 @Component({
-  selector: 'app-player',
-  templateUrl: './player.component.html',
-  styleUrls: ['./player.component.css']
+  selector: 'app-playersmall',
+  templateUrl: './playersmall.component.html',
+  styleUrls: ['./playersmall.component.css']
 })
-export class PlayerComponent implements OnInit {
+export class PlayersmallComponent implements OnInit {
   @ViewChild('betInput') betInput: ElementRef;
 
   private isWinner = false;
@@ -45,7 +45,7 @@ export class PlayerComponent implements OnInit {
     this.checkedClass = this.secondaryUnChecked;
     this.isWinnerClass = this.secondaryUnChecked;
 
-    this.deallingClass = 'btn btn-outline-secondary';
+    this.deallingClass = 'btn btn-outline-secondary ';
     this.card2SRC = this.cardPath + this.flippedCardSRC;
     this.card1SRC = this.cardPath + this.flippedCardSRC;
 
@@ -251,13 +251,6 @@ export class PlayerComponent implements OnInit {
           }
       }
   }
-
-  // private IsViewingPlayer$(): Observable<boolean> {
-  //   return this.authService.user$.pipe(
-  //     map(user => {
-  //       return this.currentPlayer.userRef === user.uid ? true : false;
-  //   }));
-  // }
 
   private IsViewingPlayer(): boolean {
     return this.currentPlayer.userRef === this.user.uid ? true : false;

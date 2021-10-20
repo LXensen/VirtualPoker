@@ -1,11 +1,159 @@
 <div class="container">
+  <div class="row g-0">
+    <div class="col-3 border">
+      <div class="row g-0">
+        <div class="col">Lee</div>
+      </div>
+      <div class="row g-0">
+        <div class="col-sm-8">
+          <img class="card-img-top w-50" src="assets/images/blue_back.png" alt="Card1">
+          <img class="card-img-top w-50" src="assets/images/blue_back.png" alt="Card2">
+        </div>
+        <div class="col-sm-4">
+          <div class="row">
+            <div class="col">
+              <button type="button" Class="btn btn-outline-secondary">Dealer</button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <button type="button" class="btn btn-outline-dark font-weight-bold" >15000</button>
+            </div>
+          </div>          
+          <div class="row">
+            <div class="col">
+              <button type="button" class="btn btn-warning font-weight-bold border border-dark" style="width: 100%;" >Bet</button>
+            </div>
+          </div>           
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="input-group input-group-md mb-3">
+            <input type="text" class="form-control" #betInput aria-label="Ammount" aria-describedby="button-addon2">
+            <div class="input-group-append">
+              <button class="btn btn-outline-danger" type="button" id="button-addon2" >Bet</button>
+              <button class="btn btn-outline-danger" type="button" id="button-addon2" >Min</button>
+            </div>
+          </div>          
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="btn-group btn-group-sm" role="group" aria-label="First group"> 
+            <button type="button" class="btn btn-outline-secondary btn-sm">View</button>                   
+            <button type="button" class="btn btn-outline-secondary btn-sm" >Fold</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm">Check</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm">SM</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm">BG</button>
+            <button type="button"  class="btn btn-outline-secondary btn-sm">win</button> 
+          </div>          
+        </div>
+      </div>
+      <!-- <div class="row">
+        <div class="col">
+          <div class="btn-group btn-group-sm" role="group" aria-label="First group"> 
+            <button type="button" class="btn btn-outline-secondary btn-sm">View</button>                   
+            <button type="button" class="btn btn-outline-secondary btn-sm" >Fold</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm">Check</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm">SM</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm">BG</button>
+            <button type="button"  class="btn btn-outline-secondary btn-sm">winner</button> 
+          </div>          
+        </div>
+      </div> -->
+    </div>
+    <div class="col-3 border">
+      <div class="row g-0">
+        <div class="col">Peter</div>
+      </div>
+      <div class="row g-0">
+        <div class="col-sm-8">
+          <img class="card-img-top w-50" src="assets/images/blue_back.png" alt="Card1">
+          <img class="card-img-top w-50" src="assets/images/blue_back.png" alt="Card2">
+        </div>
+        <div class="col-sm-4">
+          <div class="row">
+            <div class="col">
+              <button type="button" Class="btn btn-outline-secondary">Dealer</button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <button type="button" class="btn btn-outline-dark font-weight-bold" >15000</button>
+            </div>
+          </div>          
+          <div class="row">
+            <div class="col">
+              <button type="button" class="btn btn-warning font-weight-bold border border-dark" style="width: 100%;" >Bet</button>
+            </div>
+          </div>           
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="input-group input-group-md mb-3">
+            <input type="text" class="form-control" #betInput aria-label="Ammount" aria-describedby="button-addon2">
+            <div class="input-group-append">
+              <button class="btn btn-outline-danger" type="button" id="button-addon2" >Bet</button>
+              <button class="btn btn-outline-danger" type="button" id="button-addon2" >Min</button>
+            </div>
+          </div>          
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="btn-group btn-group-sm" role="group" aria-label="First group"> 
+            <button type="button" class="btn btn-outline-secondary btn-sm">View</button>                   
+            <button type="button" class="btn btn-outline-secondary btn-sm" >Fold</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm">Check</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm">SM</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm">BG</button>
+            <button type="button"  class="btn btn-outline-secondary btn-sm">win</button> 
+          </div>          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="container">
     <div class="row">
-      <div *ngFor="let player of numberOfPlayers" class="col">
-        Column
+        <template *ngFor="let player of numberOfPlayers; index as count" >
+                <div class="col border border-1" *ngIf="count !== 4">
+                    <h6>LC <span class="badge bg-warning">1200</span></h6>
+                    <span class="badge bg-info" >75</span>
+                    <span class="badge bg-danger" >fold</span>
+                </div>
+        </template>
+      <div *ngFor="let player of numberOfPlayers; index as count" class="col border border-1">
+        <h6>LC <span class="badge bg-warning" *ngIf="count !== 4">1200</span></h6>
+        <span class="badge bg-info" *ngIf="index !== 4">75</span>
+        <span class="badge bg-danger" *ngIf="index !== 4">fold</span>
       </div>
     </div>
     <div class="row">
-        <div class="col-6">Flop here</div>
+        <div class="col-6" class="col border border-1">
+          <div class="row">
+            <div class="col-12">Message here</div>
+          </div>
+          <div class="row">
+            <div class="col-4"><img class="card-img-top w-75" [src]="card1SRC" alt="Card1"></div>
+            <div class="col-4"><img class="card-img-top w-75" [src]="card2SRC" alt="Card2"></div>
+            <div class="col-4"><img class="card-img-top w-75" [src]="card3SRC" alt="Card3"></div>
+          </div>
+          <div class="row">
+            <div class="col-4"><img class="card-img-top w-75" [src]="card4SRC" alt="Card4"></div>
+            <div class="col-4"><img class="card-img-top w-75" [src]="card5SRC" alt="Card5"></div>
+            <div class="col-4">
+                <div class="row">
+                <button type="button" class="btn btn-warning font-weight-bold btn-block border border-dark text-dark" >{{pot}}</button><br />
+                <button type="button" class="btn btn-outline-dark font-weight-bold btn-block" >{{timeLeft}}</button>
+                </div>
+            </div>
+          </div>
+        </div>
         <div class="col-6">Player here</div>
     </div>
   </div>

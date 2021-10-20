@@ -27,6 +27,9 @@ import { FlopComponent } from './flop/flop.component';
 import { GamesgridComponent } from './gamesgrid/gamesgrid.component';
 import { FormsModule } from '@angular/forms';
 import { MobileComponent } from './mobile/mobile.component';
+import { TablesmallComponent } from './tablesmall/tablesmall.component';
+import { PlayersmallComponent } from './playersmall/playersmall.component';
+import { GamesmallComponent } from './gamesmall/gamesmall.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +49,10 @@ import { MobileComponent } from './mobile/mobile.component';
     AccountComponent,
     FlopComponent,
     GamesgridComponent,
-    MobileComponent
+    MobileComponent,
+    TablesmallComponent,
+    PlayersmallComponent,
+    GamesmallComponent
   ],
   imports: [
     BrowserModule,

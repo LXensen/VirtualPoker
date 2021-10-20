@@ -7,11 +7,11 @@ import { LocalStorageService } from '../shared/services/local-storage.service';
 import { User } from '../shared/model/user';
 
 @Component({
-  selector: 'app-table',
-  templateUrl: './table.component.html',
-  styleUrls: ['./table.component.css']
+  selector: 'app-tablesmall',
+  templateUrl: './tablesmall.component.html',
+  styleUrls: ['./tablesmall.component.css']
 })
-export class TableComponent implements OnInit {
+export class TablesmallComponent implements OnInit {
   dealDisabled = false;
   flopDisabled = false;
   turnDisabled = false;
@@ -34,9 +34,7 @@ export class TableComponent implements OnInit {
    }
 
   ngOnInit(): void {
-    //this.authSvc.user$.subscribe(user => {
-        this.thisPlayer = this.holdEmService.LoadPlayer(this.svcLocalStorage.get<User>('user').uid);
-    //});
+      this.thisPlayer = this.holdEmService.LoadPlayer(this.svcLocalStorage.get<User>('user').uid);
 
     this.holdEmService.NEWPlayers$.subscribe(player => {
       player.subscribe(data => {

@@ -9,8 +9,8 @@
           <li class="nav-item active">
             <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
           </li>
-          <div *ngIf="authService.user$ | async; then authenticated else guest" >
-            
+          <div *ngIf="isLoggedIn | async; then authenticated else guest" >
+
           </div>          
         </ul>
       </div>

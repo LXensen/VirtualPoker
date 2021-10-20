@@ -1,0 +1,49 @@
+<div class="row g-0">
+    <div class="col">{{currentPlayer?.name === null ? '&nbsp;' : currentPlayer?.name}}</div>
+  </div>
+  <div class="row g-0">
+    <div class="col-sm-8">
+      <img class="card-img-top w-50" src="assets/images/blue_back.png" alt="Card1">
+      <img class="card-img-top w-50" src="assets/images/blue_back.png" alt="Card2">
+    </div>
+    <div class="col-sm-4">
+      <div class="row">
+        <div class="col">
+            <button type="button" [ngClass]="deallingClass" (click)="Dealer()" [disabled]="isDisabled">Dealer</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+            <button type="button" *ngIf="currentPlayer"  class="btn btn-outline-dark font-weight-bold " >15000</button>
+        </div>
+      </div>          
+      <div class="row">
+        <div class="col">
+            <button type="button" *ngIf="currentPlayer" class="btn btn-warning font-weight-bold btn-block border border-dark" >{{currentPlayer?.totalBet === 0 ? '&nbsp;' : currentPlayer?.totalBet}}</button>
+        </div>
+      </div>           
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="input-group input-group-md mb-3">
+        <input type="text" class="form-control" #betInput aria-label="Ammount" aria-describedby="button-addon2">
+        <div class="input-group-append">
+            <button class="btn btn-outline-danger" type="button" id="button-addon2" (click)="Bet(betInput.value)" [disabled]="isDisabled">Bet</button>
+            <button class="btn btn-outline-danger" type="button" id="button-addon2" (click)="Min()" [disabled]="isDisabled">Min</button>
+        </div>
+      </div>          
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <div class="btn-group btn-group-sm" role="group" aria-label="First group"> 
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="TurnOverCards()" [disabled]="isDisabled">View</button>                    
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="FoldHand()" [disabled]="isDisabled">Fold</button>
+        <button type="button" [ngClass]="checkedClass" (click)="Check()" [disabled]="isDisabled">Check</button>
+        <button type="button" [ngClass]="smallAnteClass" (click)="Small()" [disabled]="isDisabled">SM</button>
+        <button type="button" [ngClass]="bigAnteeClass" (click)="Big()" [disabled]="isDisabled">BG</button>
+        <button type="button" [ngClass]="isWinnerClass" (click)="ToggleWinner()" [disabled]="isDisabled">win</button> 
+      </div>          
+    </div>
+  </div>

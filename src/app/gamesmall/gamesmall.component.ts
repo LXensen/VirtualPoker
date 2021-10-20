@@ -1,15 +1,15 @@
 import { HoldemService } from './../service/holdem.service';
-import { Component, Input, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component,  OnInit} from '@angular/core';
 import { Gametemplate } from '../shared/model/gametemplate';
 import { Player } from '../shared/model/player';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-game',
-  templateUrl: './game.component.html',
-  styleUrls: ['./game.component.css']
+  selector: 'app-gamesmall',
+  templateUrl: './gamesmall.component.html',
+  styleUrls: ['./gamesmall.component.css']
 })
-export class GameComponent implements OnInit {
+export class GamesmallComponent implements OnInit {
   glowingtext = 'form-control mr-sm-2';
   timerCountdown: string;
   starttime: Date;
@@ -17,14 +17,14 @@ export class GameComponent implements OnInit {
   gamestate: Gametemplate;
   players = new Array<Player>();
   gameId: string;
-
+  
   constructor(private holdEmService: HoldemService,
-              private route: ActivatedRoute) {
+              private route: ActivatedRoute) { 
                 this.route.paramMap.subscribe(params => {
                   this.gameId = params.get('gameid') as any;
                 });
     this.timerCountdown = '';
-   }
+  }
 
   ngOnInit(): void {
     this.holdEmService.NEWPlayers$.subscribe(players => {
@@ -32,9 +32,7 @@ export class GameComponent implements OnInit {
         this.players.push(data.data())
       })
     });
-    // this.holdEmService.Players$.subscribe(players => {
-    //   this.players = players.docs;
-    // });
+
     this.holdEmService.GameState().subscribe(state => {
       this.gamestate = state;
       if (!state.completed) {

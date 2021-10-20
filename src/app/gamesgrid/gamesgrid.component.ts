@@ -17,17 +17,14 @@ export class GamesgridComponent implements OnInit {
   user: User;
   newgames: Observable<any>;
 
-  constructor(private authService: AuthService,
-              private gameService: GameService,
+  constructor(private gameService: GameService,
               private svcLocalStorage: LocalStorageService,
               private router: Router) {
 
    }
 
   ngOnInit(): void {
-    this.authService.user$.subscribe((usr: any) => {
-      // this.user = usr.data();       
-      this.user = usr; 
+      this.user = this.svcLocalStorage.get('user'); 
       this.games = new Array();           
 
       this.gameService.NEWPlayersGames(this.user.uid).subscribe(data => {
@@ -36,7 +33,6 @@ export class GamesgridComponent implements OnInit {
           this.games.push(docs.data())
         });
       });      
-    });
   }
 
   GoToGame(gameId: string) {

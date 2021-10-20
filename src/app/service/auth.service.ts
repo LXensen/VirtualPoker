@@ -1,8 +1,8 @@
-import { Observable, of } from 'rxjs';
+import { of, Observable } from 'rxjs';
 import { Injectable, isDevMode } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { switchMap, take, tap, map } from 'rxjs/operators';
+import { switchMap, first, take, map, tap } from 'rxjs/operators';
 import { User } from '../shared/model/user';
 import { LocalStorageService } from '../shared/services/local-storage.service';
 
@@ -10,31 +10,46 @@ import { LocalStorageService } from '../shared/services/local-storage.service';
   providedIn: 'root'
 })
 export class AuthService {
-  user$: Observable<User>;
+  // user$: Observable<User>;
 
-  loggedin = false;
+  // loggedin = false;
   // FireUser: User = JSON.parse(localStorage.getItem('user')) !== null  ? JSON.parse(localStorage.getItem('user')) : null ;
 
 constructor(private afs: AngularFirestore,
             private afAuth: AngularFireAuth,
             private svcLocalStorage: LocalStorageService) {
                 // Get the AuthUser, then transform it (switchMap) to get the app user doc (users/user.id)
-                this.user$ = this.afAuth.authState.pipe(
+                this.afAuth.authState.pipe(
                   switchMap(user => {
+                    debugger;
                     if (user) {
-                      this.loggedin = true;
-                      // localstorage? The observable state has alreayd been done...?
-                      const userData: User = {
-                        uid: user.uid,
-                        email: user.email,
-                        displayName: user.displayName
-                      };
+                      // this.loggedin = true;
                       if(this.svcLocalStorage.get<User>('user') === null){
-                        this.svcLocalStorage.set('user', userData);
+                        const userData: User = {
+                          uid: user.uid,
+                          email: user.email,
+                          displayName: user.displayName
+                        };
+                        this.afs.collection<User>(`users/${user.uid}`).get().subscribe(usrDoc => {
+                          debugger;
+                          if(user.displayName === ''){
+                            userData.displayName = usrDoc.docs[0].data().displayName;
+                          }
+                          this.svcLocalStorage.set('user', userData);
+                        })
                       }
+                      // const userData: User = {
+                      //   uid: user.uid,
+                      //   email: user.email,
+                      //   displayName: user.displayName
+                      // };
+                      // if(this.svcLocalStorage.get<User>('user') === null){
+                      //   this.svcLocalStorage.set('user', userData);
+                      // }
                       
-                      return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
+                      // return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
                     } else {
+                      this.svcLocalStorage.set('user', null);
                       return of(null);
                     }
                   })
@@ -66,7 +81,7 @@ constructor(private afs: AngularFirestore,
       this.SetUserData(userData);
 
       return (await this.afAuth.currentUser).updateProfile({
-        displayName: name
+        displayName: user.displayName
       });
   }
 
@@ -105,11 +120,13 @@ constructor(private afs: AngularFirestore,
   }
 
   IsLoggedIn(): Observable<boolean> {
-      return this.user$.pipe(
-        take(1),
+    // this.afAuth.authState.subscribe(x => {
+    //   debugger;
+    // })
+    // return this.afAuth.authState.pipe(first()).toPromise();
+      return this.afAuth.authState.pipe(
         map(user => !!user),
         tap(loggedin => {
-          console.log('is logged in: ' + loggedin);
           return (loggedin ? true : false);
         }));
   }
@@ -121,14 +138,15 @@ constructor(private afs: AngularFirestore,
     batchUpdate.set(usersGames, {},{merge: true});
 
     const userRef = this.afs.firestore.collection('users').doc(user.uid);
+
     const userData: User = {
       uid: user.uid,
       email: user.email,
       displayName: user.displayName
     };
+    this.svcLocalStorage.set('user', userData);
     batchUpdate.set(userRef, userData);
 
-    this.svcLocalStorage.set('user', userData);
     return batchUpdate.commit();
   }
 }

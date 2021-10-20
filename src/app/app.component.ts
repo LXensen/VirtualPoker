@@ -17,7 +17,7 @@ export class AppComponent implements OnInit {
     this.router.events.forEach((event) => {
       if (event instanceof NavigationStart){
         event['url'] === '/mobile' ? this.isDesktop = false : this.isDesktop = true;
-        console.log(event['url'] + ' ' + this.isDesktop);
+        // console.log(event['url'] + ' ' + this.isDesktop);
       }
     });
 

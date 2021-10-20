@@ -1,0 +1,46 @@
+<div class="container">
+    <div class="row">
+      <div class="col-3 border p-2">
+       <app-playersmall [player]="allPlayers[0]"></app-playersmall>
+      </div>
+      <div class="col-3 border p-2">
+        <app-playersmall [player]="allPlayers[1]"></app-playersmall>
+      </div>
+      <div class="col-3 border p-2">
+        <app-playersmall [player]="allPlayers[2]"></app-playersmall>
+      </div>
+    </div>
+
+    <div class="row">
+        <div class="col-3 border p-2">
+         <app-playersmall [player]="allPlayers[7]"></app-playersmall>
+        </div>
+        <div class="col-3 border p-2">
+            <div >
+                <app-flop *ngIf="gamestate" [GameState]="gamestate"></app-flop>
+            </div>
+            <div class="btn-group btn-group-sm pt-2" role="group" aria-label="Second group" *ngIf="gamestate?.started && !gamestate?.completed && (thisPlayer | async)?.dealer" > 
+                <button type="button" class="btn btn-outline-secondary btn-sm" (click)="Deal()" [disabled]="dealDisabled" *ngIf="dealVisible">Deal</button>                   
+                <button type="button" class="btn btn-outline-secondary btn-sm" (click)="DealFlop()" [disabled]="flopDisabled" *ngIf="flopVisible">Flop</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" (click)="DealTurn()" [disabled]="turnDisabled" *ngIf="turnVisible">Turn</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" (click)="DealRiver()" [disabled]="riverDisabled" *ngIf="riverVisible">River</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-outline-secondary btn-sm" (click)="ShowCards()">Show</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" (click)="NewHand()" >New Hand</button> 
+              </div>              
+        </div>
+        <div class="col-3 border p-2">
+          <app-playersmall [player]="allPlayers[3]"></app-playersmall>
+        </div>
+    </div>  
+    <div class="row">
+        <div class="col-3 border p-2">
+         <app-playersmall [player]="allPlayers[6]"></app-playersmall>
+        </div>
+        <div class="col-3 border p-2">
+          <app-playersmall [player]="allPlayers[5]"></app-playersmall>
+        </div>
+        <div class="col-3 border p-2">
+          <app-playersmall [player]="allPlayers[4]"></app-playersmall>
+        </div>
+      </div>      
+  </div>
