@@ -57,18 +57,15 @@ constructor(private afs: AngularFirestore,
   }
   // Sign in with email/password
   async SignIn(email: string, password: string) {
-    if (isDevMode()){
+    // if (isDevMode()){
       return this.afAuth.signInWithEmailAndPassword(email, password)
       .then(user => {
-        // set the user/user_id table.
-        // We have to do this because when we restart the emulator,
-        // the users/user_ref_id table is reset
-        // NOTE: in 'prod', this is done on Sign Up
         return this.SetUserData(user.user);
       });
-    } else {
-      return this.afAuth.signInWithEmailAndPassword(email, password);
-    }
+    //} 
+    // else {
+    //   return this.afAuth.signInWithEmailAndPassword(email, password);
+    // }
   }
 
   async upateUser(user: User){
@@ -132,21 +129,28 @@ constructor(private afs: AngularFirestore,
   }
 
   SetUserData(user) {
-    const batchUpdate = this.afs.firestore.batch();
-
-    const usersGames = this.afs.firestore.collection('usersGames').doc(user.uid);
-    batchUpdate.set(usersGames, {},{merge: true});
-
-    const userRef = this.afs.firestore.collection('users').doc(user.uid);
-
     const userData: User = {
       uid: user.uid,
       email: user.email,
       displayName: user.displayName
     };
-    this.svcLocalStorage.set('user', userData);
-    batchUpdate.set(userRef, userData);
 
-    return batchUpdate.commit();
+    if(this.svcLocalStorage.get<User>('user') === null){
+      this.svcLocalStorage.set('user', userData);
+    }
+    
+    if (isDevMode()){
+      const batchUpdate = this.afs.firestore.batch();
+
+      const usersGames = this.afs.firestore.collection('usersGames').doc(user.uid);
+      
+      batchUpdate.set(usersGames, {},{merge: true});
+  
+      const userRef = this.afs.firestore.collection('users').doc(user.uid);
+  
+      batchUpdate.set(userRef, userData);
+  
+      return batchUpdate.commit();
+    }
   }
 }
